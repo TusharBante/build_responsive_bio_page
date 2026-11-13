@@ -1,31 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useContext } from 'react';
+import { ProductContext } from '../context/ProductContext';
 import ProductCard from './ProductCard';
 
-// ProductList Component: Fetches products and manages loading/error states
+// ProductList component consumes products, loading, error from ProductContext via useContext()
 function ProductList() {
-  const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  // Fetch product data on component mount
-  useEffect(() => {
-    fetch('/products')
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error(`Failed to fetch products (HTTP ${response.status})`);
-        }
-        return response.json();
-      })
-      .then((data) => {
-        setProducts(data);
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.error('Error fetching products:', err);
-        setError('Unable to load products. Please ensure the Express server and MySQL database are running.');
-        setLoading(false);
-      });
-  }, []);
+  const { filteredProducts, loading, error, searchTerm, fetchProducts } = useContext(ProductContext);
 
   // 1. Loading State: Display spinning loader
   if (loading) {
@@ -42,19 +21,34 @@ function ProductList() {
     return (
       <div className="error-container">
         <p className="error-text">⚠️ {error}</p>
+        <button
+          type="button"
+          className="retry-btn"
+          onClick={fetchProducts}
+        >
+          Try Again
+        </button>
       </div>
     );
   }
 
-  // 3. Empty State: No products found
-  if (products.length === 0) {
-    return <p className="empty-text">No products available in the database.</p>;
+  // 3. Empty State: No products matching search or empty database
+  if (filteredProducts.length === 0) {
+    return (
+      <div className="empty-container">
+        <p className="empty-text">
+          {searchTerm
+            ? `No products found matching "${searchTerm}".`
+            : 'No products available in the database.'}
+        </p>
+      </div>
+    );
   }
 
   // 4. Success State: Render list of ProductCard components
   return (
     <div className="products-grid">
-      {products.map((product) => (
+      {filteredProducts.map((product) => (
         <ProductCard key={product.id} product={product} />
       ))}
     </div>

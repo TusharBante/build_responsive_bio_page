@@ -1,28 +1,35 @@
 import React from 'react';
+import { ProductProvider } from './context/ProductContext';
+import SearchBar from './components/SearchBar';
 import ProductList from './components/ProductList';
 
-// Main Application Component
+// Main Application Component wrapped with ProductProvider (eliminates prop drilling)
 function App() {
   return (
-    <div className="container">
-      {/* Header */}
-      <header className="header">
-        <h1>🛍️ Product Catalog</h1>
-        <p className="subtitle">
-          Interactive React frontend powered by an Express API & MySQL database
-        </p>
-      </header>
+    <ProductProvider>
+      <div className="container">
+        {/* Header */}
+        <header className="header">
+          <h1>🛍️ Product Catalog</h1>
+          <p className="subtitle">
+            React Context API &bull; Express API &bull; MySQL Database
+          </p>
+        </header>
 
-      {/* Main Content with ProductList */}
-      <main>
-        <ProductList />
-      </main>
+        {/* Search Bar consuming ProductContext */}
+        <SearchBar />
 
-      {/* Footer */}
-      <footer className="footer">
-        <p>Simple React &bull; Express &bull; MySQL Product List Application</p>
-      </footer>
-    </div>
+        {/* Main Content: ProductList consuming ProductContext */}
+        <main>
+          <ProductList />
+        </main>
+
+        {/* Footer */}
+        <footer className="footer">
+          <p>Simple React Context API Product List Application</p>
+        </footer>
+      </div>
+    </ProductProvider>
   );
 }
 
