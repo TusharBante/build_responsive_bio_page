@@ -97,6 +97,14 @@ app.post('/products', validateProduct, async (req, res) => {
   }
 });
 
+// SPA client-side routing fallback (serves index.html for all non-API GET requests)
+app.use((req, res, next) => {
+  if (req.method === 'GET' && !req.path.startsWith('/products')) {
+    return res.sendFile('index.html', { root: path.resolve(__dirname, 'public') });
+  }
+  next();
+});
+
 // Start the Express server
 app.listen(PORT, () => {
   console.log(`Server is running at http://localhost:${PORT}`);
