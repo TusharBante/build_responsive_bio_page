@@ -1,13 +1,203 @@
 import React, { useState, useContext } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import styled from 'styled-components';
 import { ProductContext } from '../context/ProductContext';
 
-// AddProduct Component: Form to create a new product matching MySQL schema
+// Styled Components for Add Product Page
+const FormWrapper = styled.div`
+  max-width: 650px;
+  margin: 1rem auto;
+`;
+
+const FormCard = styled.div`
+  background-color: ${({ theme }) => theme.cardBg};
+  border: 1px solid ${({ theme }) => theme.border};
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: ${({ theme }) => theme.shadow};
+  transition: background-color 0.25s ease, border-color 0.25s ease;
+`;
+
+const FormHeader = styled.div`
+  margin-bottom: 1.5rem;
+`;
+
+const FormTitle = styled.h2`
+  font-size: 1.6rem;
+  color: ${({ theme }) => theme.textHeading};
+  margin-bottom: 0.35rem;
+`;
+
+const FormSubtitle = styled.p`
+  color: ${({ theme }) => theme.textMuted};
+  font-size: 0.95rem;
+`;
+
+const FormGroup = styled.div`
+  margin-bottom: 1.25rem;
+  display: flex;
+  flex-direction: column;
+`;
+
+const FormRow = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+
+  @media (max-width: 640px) {
+    grid-template-columns: 1fr;
+  }
+`;
+
+const FormLabel = styled.label`
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: ${({ theme }) => theme.textMain};
+  margin-bottom: 0.4rem;
+`;
+
+const FormInput = styled.input`
+  width: 100%;
+  padding: 0.65rem 0.85rem;
+  font-size: 0.95rem;
+  border: 1px solid ${({ $hasError, theme }) => ($hasError ? '#dc2626' : theme.borderInput)};
+  border-radius: 6px;
+  background-color: ${({ $hasError, theme }) => ($hasError ? (theme.mode === 'dark' ? '#450a0a' : '#fef2f2') : theme.inputBg)};
+  color: ${({ theme }) => theme.textMain};
+  font-family: inherit;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.25s ease;
+
+  &:focus {
+    outline: none;
+    border-color: ${({ theme }) => theme.primary};
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+  }
+`;
+
+const FormSelect = styled.select`
+  width: 100%;
+  padding: 0.65rem 0.85rem;
+  font-size: 0.95rem;
+  border: 1px solid ${({ $hasError, theme }) => ($hasError ? '#dc2626' : theme.borderInput)};
+  border-radius: 6px;
+  background-color: ${({ $hasError, theme }) => ($hasError ? (theme.mode === 'dark' ? '#450a0a' : '#fef2f2') : theme.inputBg)};
+  color: ${({ theme }) => theme.textMain};
+  font-family: inherit;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.25s ease;
+
+  &:focus {
+    outline: none;
+    border-color: ${({ theme }) => theme.primary};
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+  }
+`;
+
+const FormTextarea = styled.textarea`
+  width: 100%;
+  padding: 0.65rem 0.85rem;
+  font-size: 0.95rem;
+  border: 1px solid ${({ theme }) => theme.borderInput};
+  border-radius: 6px;
+  background-color: ${({ theme }) => theme.inputBg};
+  color: ${({ theme }) => theme.textMain};
+  font-family: inherit;
+  resize: vertical;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.25s ease;
+
+  &:focus {
+    outline: none;
+    border-color: ${({ theme }) => theme.primary};
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+  }
+`;
+
+const FormHint = styled.small`
+  color: ${({ theme }) => theme.textMuted};
+  font-size: 0.8rem;
+  margin-top: 0.3rem;
+`;
+
+const FieldError = styled.span`
+  color: #ef4444;
+  font-size: 0.8rem;
+  margin-top: 0.3rem;
+  font-weight: 500;
+`;
+
+const FormActions = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1.75rem;
+`;
+
+const SubmitButton = styled.button`
+  background-color: ${({ theme }) => theme.primary};
+  color: #ffffff;
+  border: none;
+  padding: 0.65rem 1.4rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s ease, opacity 0.2s ease;
+
+  &:hover:not(:disabled) {
+    background-color: ${({ theme }) => theme.primaryHover};
+  }
+
+  &:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+  }
+`;
+
+const CancelLink = styled(Link)`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.65rem 1.4rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  border-radius: 6px;
+  text-decoration: none;
+  background-color: ${({ theme }) => theme.cardBg};
+  color: ${({ theme }) => theme.textMain};
+  border: 1px solid ${({ theme }) => theme.borderInput};
+  transition: all 0.2s ease;
+
+  &:hover {
+    background-color: ${({ theme }) => theme.iconBg};
+  }
+`;
+
+const AlertSuccess = styled.div`
+  padding: 0.85rem 1.25rem;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  margin-bottom: 1.5rem;
+  background-color: #dcfce7;
+  color: #166534;
+  border: 1px solid #bbf7d0;
+`;
+
+const AlertError = styled.div`
+  padding: 0.85rem 1.25rem;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  margin-bottom: 1.5rem;
+  background-color: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+`;
+
+// AddProduct Component
 function AddProduct() {
   const navigate = useNavigate();
   const { fetchProducts } = useContext(ProductContext);
 
-  // Form input state
   const [formData, setFormData] = useState({
     name: '',
     price: '',
@@ -16,13 +206,11 @@ function AddProduct() {
     icon: '📦'
   });
 
-  // Form feedback state
   const [validationErrors, setValidationErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [serverError, setServerError] = useState(null);
   const [successMessage, setSuccessMessage] = useState(null);
 
-  // Handle field value changes
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -30,7 +218,6 @@ function AddProduct() {
       [name]: value
     }));
 
-    // Clear validation error for modified field
     if (validationErrors[name]) {
       setValidationErrors((prev) => ({
         ...prev,
@@ -39,7 +226,6 @@ function AddProduct() {
     }
   };
 
-  // Client-side input validation
   const validateForm = () => {
     const errors = {};
 
@@ -63,13 +249,11 @@ function AddProduct() {
     return Object.keys(errors).length === 0;
   };
 
-  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     setServerError(null);
     setSuccessMessage(null);
 
-    // Validate inputs before submitting
     if (!validateForm()) {
       return;
     }
@@ -94,7 +278,6 @@ function AddProduct() {
       const data = await response.json();
 
       if (!response.ok) {
-        // Express-validator response handling
         if (data.errors && Array.isArray(data.errors)) {
           const apiErrors = {};
           data.errors.forEach((err) => {
@@ -107,12 +290,10 @@ function AddProduct() {
         }
       }
 
-      // Refresh product list in context
       if (fetchProducts) {
         fetchProducts();
       }
 
-      // Show success message and redirect to catalog
       setSuccessMessage('🎉 Product added successfully! Redirecting to catalog...');
       setTimeout(() => {
         navigate('/');
@@ -126,71 +307,54 @@ function AddProduct() {
   };
 
   return (
-    <div className="add-product-container">
-      <div className="form-card">
-        <div className="form-header">
-          <h2>➕ Add New Product</h2>
-          <p className="form-subtitle">Enter product details to add an item to the store catalog.</p>
-        </div>
+    <FormWrapper>
+      <FormCard>
+        <FormHeader>
+          <FormTitle>➕ Add New Product</FormTitle>
+          <FormSubtitle>Enter product details to add an item to the store catalog.</FormSubtitle>
+        </FormHeader>
 
-        {/* Success Notification */}
-        {successMessage && (
-          <div className="alert alert-success">
-            {successMessage}
-          </div>
-        )}
-
-        {/* Error Notification */}
-        {serverError && (
-          <div className="alert alert-error">
-            ⚠️ {serverError}
-          </div>
-        )}
+        {successMessage && <AlertSuccess>{successMessage}</AlertSuccess>}
+        {serverError && <AlertError>⚠️ {serverError}</AlertError>}
 
         <form onSubmit={handleSubmit} noValidate>
-          {/* Name Field */}
-          <div className="form-group">
-            <label htmlFor="name">Product Name *</label>
-            <input
+          <FormGroup>
+            <FormLabel htmlFor="name">Product Name *</FormLabel>
+            <FormInput
               type="text"
               id="name"
               name="name"
-              className={`form-input ${validationErrors.name ? 'input-error' : ''}`}
+              $hasError={Boolean(validationErrors.name)}
               placeholder="e.g. Ergonomic Office Chair"
               value={formData.name}
               onChange={handleChange}
             />
-            {validationErrors.name && (
-              <span className="field-error-text">{validationErrors.name}</span>
-            )}
-          </div>
+            {validationErrors.name && <FieldError>{validationErrors.name}</FieldError>}
+          </FormGroup>
 
-          {/* Price & Category Fields */}
-          <div className="form-row">
-            <div className="form-group">
-              <label htmlFor="price">Price ($) *</label>
-              <input
+          <FormRow>
+            <FormGroup>
+              <FormLabel htmlFor="price">Price ($) *</FormLabel>
+              <FormInput
                 type="number"
                 id="price"
                 name="price"
                 step="0.01"
                 min="0.01"
-                className={`form-input ${validationErrors.price ? 'input-error' : ''}`}
+                $hasError={Boolean(validationErrors.price)}
                 placeholder="e.g. 79.99"
                 value={formData.price}
                 onChange={handleChange}
               />
-              {validationErrors.price && (
-                <span className="field-error-text">{validationErrors.price}</span>
-              )}
-            </div>
+              {validationErrors.price && <FieldError>{validationErrors.price}</FieldError>}
+            </FormGroup>
 
-            <div className="form-group">
-              <label htmlFor="category">Category *</label>
-              <select
+            <FormGroup>
+              <FormLabel htmlFor="category">Category *</FormLabel>
+              <FormSelect
                 id="category"
                 name="category"
-                className={`form-input ${validationErrors.category ? 'input-error' : ''}`}
+                $hasError={Boolean(validationErrors.category)}
                 value={formData.category}
                 onChange={handleChange}
               >
@@ -200,58 +364,45 @@ function AddProduct() {
                 <option value="Fitness">Fitness</option>
                 <option value="Accessories">Accessories</option>
                 <option value="Home & Kitchen">Home & Kitchen</option>
-              </select>
-              {validationErrors.category && (
-                <span className="field-error-text">{validationErrors.category}</span>
-              )}
-            </div>
-          </div>
+              </FormSelect>
+              {validationErrors.category && <FieldError>{validationErrors.category}</FieldError>}
+            </FormGroup>
+          </FormRow>
 
-          {/* Icon (Emoji) Field */}
-          <div className="form-group">
-            <label htmlFor="icon">Product Icon (Emoji)</label>
-            <input
+          <FormGroup>
+            <FormLabel htmlFor="icon">Product Icon (Emoji)</FormLabel>
+            <FormInput
               type="text"
               id="icon"
               name="icon"
-              className="form-input"
               placeholder="e.g. 🎧, 💻, 📱, 📦"
               value={formData.icon}
               onChange={handleChange}
             />
-            <small className="form-hint">Icon displayed on the product card (defaults to 📦).</small>
-          </div>
+            <FormHint>Icon displayed on the product card (defaults to 📦).</FormHint>
+          </FormGroup>
 
-          {/* Description Field */}
-          <div className="form-group">
-            <label htmlFor="description">Description</label>
-            <textarea
+          <FormGroup>
+            <FormLabel htmlFor="description">Description</FormLabel>
+            <FormTextarea
               id="description"
               name="description"
               rows="3"
-              className="form-input"
               placeholder="Brief details about the product..."
               value={formData.description}
               onChange={handleChange}
-            ></textarea>
-          </div>
+            />
+          </FormGroup>
 
-          {/* Action Buttons */}
-          <div className="form-actions">
-            <button
-              type="submit"
-              className="btn btn-primary"
-              disabled={isSubmitting}
-            >
+          <FormActions>
+            <SubmitButton type="submit" disabled={isSubmitting}>
               {isSubmitting ? 'Saving...' : 'Add Product'}
-            </button>
-            <Link to="/" className="btn btn-secondary">
-              Cancel
-            </Link>
-          </div>
+            </SubmitButton>
+            <CancelLink to="/">Cancel</CancelLink>
+          </FormActions>
         </form>
-      </div>
-    </div>
+      </FormCard>
+    </FormWrapper>
   );
 }
 
