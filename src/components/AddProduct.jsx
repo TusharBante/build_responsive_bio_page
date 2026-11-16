@@ -2,6 +2,8 @@ import React, { useState, useContext } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { ProductContext } from '../context/ProductContext';
+import { useAuth } from '../context/AuthContext';
+import { useFormErrors } from '../hooks/useFormErrors';
 
 // Styled Components for Add Product Page
 const FormWrapper = styled.div`
@@ -140,6 +142,7 @@ const SubmitButton = styled.button`
   font-weight: 600;
   border-radius: 6px;
   cursor: pointer;
+  font-family: inherit;
   transition: background-color 0.2s ease, opacity 0.2s ease;
 
   &:hover:not(:disabled) {
@@ -152,6 +155,7 @@ const SubmitButton = styled.button`
   }
 `;
 
+// Complete CancelLink styled-component
 const CancelLink = styled(Link)`
   display: inline-flex;
   align-items: center;
@@ -164,10 +168,19 @@ const CancelLink = styled(Link)`
   background-color: ${({ theme }) => theme.cardBg};
   color: ${({ theme }) => theme.textMain};
   border: 1px solid ${({ theme }) => theme.borderInput};
+  cursor: pointer;
+  font-family: inherit;
   transition: all 0.2s ease;
 
   &:hover {
     background-color: ${({ theme }) => theme.iconBg};
+    border-color: ${({ theme }) => theme.textMuted};
+    color: ${({ theme }) => theme.textHeading};
+  }
+
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
   }
 `;
 
@@ -197,7 +210,9 @@ const AlertError = styled.div`
 function AddProduct() {
   const navigate = useNavigate();
   const { fetchProducts } = useContext(ProductContext);
+  const { token } = useAuth();
 
+  // Form input state
   const [formData, setFormData] = useState({
     name: '',
     price: '',
@@ -206,7 +221,14 @@ function AddProduct() {
     icon: '📦'
   });
 
-  const [validationErrors, setValidationErrors] = useState({});
+  // Reusable custom hook for validation errors
+  const {
+    errors: validationErrors,
+    clearFieldError,
+    setErrors: setValidationErrors,
+    setApiErrors
+  } = useFormErrors();
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [serverError, setServerError] = useState(null);
   const [successMessage, setSuccessMessage] = useState(null);
@@ -218,12 +240,8 @@ function AddProduct() {
       [name]: value
     }));
 
-    if (validationErrors[name]) {
-      setValidationErrors((prev) => ({
-        ...prev,
-        [name]: null
-      }));
-    }
+    // Clear error for field as user updates it
+    clearFieldError(name);
   };
 
   const validateForm = () => {
@@ -264,7 +282,8 @@ function AddProduct() {
       const response = await fetch('/products', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {})
         },
         body: JSON.stringify({
           name: formData.name.trim(),
@@ -279,11 +298,7 @@ function AddProduct() {
 
       if (!response.ok) {
         if (data.errors && Array.isArray(data.errors)) {
-          const apiErrors = {};
-          data.errors.forEach((err) => {
-            apiErrors[err.field] = err.message;
-          });
-          setValidationErrors(apiErrors);
+          setApiErrors(data.errors);
           throw new Error('Please correct the validation errors below.');
         } else {
           throw new Error(data.message || 'Failed to add product.');

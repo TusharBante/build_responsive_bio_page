@@ -1,12 +1,14 @@
 // Import required modules
 const express = require('express');
 const path = require('path');
+const jwt = require('jsonwebtoken');
 const { body, validationResult } = require('express-validator');
 const db = require('./db'); // Import MySQL connection pool
 
 // Initialize the Express application
 const app = express();
 const PORT = process.env.PORT || 3000;
+const JWT_SECRET = process.env.JWT_SECRET || 'secret-jwt-key-for-product-app-demo';
 
 // Middleware to parse JSON and URL-encoded request bodies
 app.use(express.json());
@@ -34,6 +36,52 @@ const validateProduct = [
     .optional()
     .trim()
 ];
+
+// Validation rules for login
+const validateLogin = [
+  body('email')
+    .trim()
+    .notEmpty().withMessage('Email is required.')
+    .isEmail().withMessage('Please provide a valid email address.')
+    .normalizeEmail(),
+  body('password')
+    .notEmpty().withMessage('Password is required.')
+    .isLength({ min: 6 }).withMessage('Password must be at least 6 characters long.')
+];
+
+// Express POST /login route for JWT authentication
+app.post('/login', validateLogin, (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({
+      success: false,
+      message: 'Validation failed',
+      errors: errors.array().map((err) => ({
+        field: err.path,
+        message: err.msg
+      }))
+    });
+  }
+
+  const { email, password } = req.body;
+
+  // Generate JWT token with 24h expiration
+  const token = jwt.sign(
+    { email, role: 'admin' },
+    JWT_SECRET,
+    { expiresIn: '24h' }
+  );
+
+  return res.status(200).json({
+    success: true,
+    message: 'Login successful',
+    token,
+    user: {
+      email,
+      name: email.split('@')[0]
+    }
+  });
+});
 
 // Express GET route to fetch products from the MySQL database
 app.get('/products', async (req, res) => {

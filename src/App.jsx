@@ -1,98 +1,20 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route, Link, useLocation } from 'react-router-dom';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import styled from 'styled-components';
 import { ProductProvider } from './context/ProductContext';
-import { ThemeProvider, useTheme } from './context/ThemeContext';
+import { ThemeProvider } from './context/ThemeContext';
+import { AuthProvider } from './context/AuthContext';
+import Navigation from './components/Navigation';
 import SearchBar from './components/SearchBar';
 import ProductList from './components/ProductList';
 import AddProduct from './components/AddProduct';
+import Login from './components/Login';
+import ProtectedRoute from './components/ProtectedRoute';
 
-// Styled Components for Layout & Navigation
+// Styled Components for Layout
 const AppContainer = styled.div`
   max-width: 1100px;
   margin: 0 auto;
-`;
-
-const Navbar = styled.nav`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background-color: ${({ theme }) => theme.navbarBg};
-  padding: 1rem 1.5rem;
-  border-radius: 12px;
-  border: 1px solid ${({ theme }) => theme.border};
-  box-shadow: ${({ theme }) => theme.shadow};
-  margin-bottom: 2rem;
-  transition: background-color 0.25s ease, border-color 0.25s ease;
-
-  @media (max-width: 640px) {
-    flex-direction: column;
-    gap: 1rem;
-    text-align: center;
-  }
-`;
-
-const NavBrand = styled(Link)`
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: ${({ theme }) => theme.textHeading};
-  text-decoration: none;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-`;
-
-const NavRightSection = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-
-  @media (max-width: 640px) {
-    flex-wrap: wrap;
-    justify-content: center;
-  }
-`;
-
-const NavLinks = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-`;
-
-const NavLinkItem = styled(Link)`
-  text-decoration: none;
-  color: ${({ $isActive, theme }) => ($isActive ? theme.primary : theme.textMuted)};
-  background-color: ${({ $isActive, theme }) => ($isActive ? theme.primaryLight : 'transparent')};
-  font-weight: ${({ $isActive }) => ($isActive ? '600' : '500')};
-  font-size: 0.95rem;
-  padding: 0.45rem 0.9rem;
-  border-radius: 6px;
-  transition: all 0.2s ease;
-
-  &:hover {
-    color: ${({ theme }) => theme.primary};
-    background-color: ${({ theme }) => theme.iconBg};
-  }
-`;
-
-const ThemeToggleBtn = styled.button`
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  background-color: ${({ theme }) => theme.toggleBg};
-  border: 1px solid ${({ theme }) => theme.toggleBorder};
-  color: ${({ theme }) => theme.toggleText};
-  padding: 0.45rem 0.85rem;
-  font-size: 0.875rem;
-  font-weight: 600;
-  border-radius: 9999px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-
-  &:hover {
-    opacity: 0.9;
-    transform: scale(1.03);
-  }
 `;
 
 const Header = styled.header`
@@ -121,37 +43,7 @@ const Footer = styled.footer`
   transition: color 0.25s ease;
 `;
 
-// Top Navigation Bar Component with Theme Toggle
-function Navigation() {
-  const location = useLocation();
-  const { themeMode, toggleTheme } = useTheme();
-
-  return (
-    <Navbar>
-      <NavBrand to="/">🛍️ ProductStore</NavBrand>
-      <NavRightSection>
-        <NavLinks>
-          <NavLinkItem to="/" $isActive={location.pathname === '/'}>
-            Catalog
-          </NavLinkItem>
-          <NavLinkItem to="/add-product" $isActive={location.pathname === '/add-product'}>
-            ➕ Add Product
-          </NavLinkItem>
-        </NavLinks>
-        <ThemeToggleBtn
-          type="button"
-          onClick={toggleTheme}
-          aria-label="Toggle dark mode"
-          title={`Switch to ${themeMode === 'light' ? 'Dark' : 'Light'} Mode`}
-        >
-          {themeMode === 'light' ? '🌙 Dark Mode' : '☀️ Light Mode'}
-        </ThemeToggleBtn>
-      </NavRightSection>
-    </Navbar>
-  );
-}
-
-// Catalog View (Home Route)
+// Catalog Page Component (Home Route)
 function CatalogPage() {
   return (
     <>
@@ -167,25 +59,36 @@ function CatalogPage() {
   );
 }
 
-// Main App Layout wrapped in ThemeProvider & ProductProvider
+// Main App Layout wrapped in ThemeProvider, AuthProvider & ProductProvider
 function App() {
   return (
     <BrowserRouter>
       <ThemeProvider>
-        <ProductProvider>
-          <AppContainer>
-            <Navigation />
-            <main>
-              <Routes>
-                <Route path="/" element={<CatalogPage />} />
-                <Route path="/add-product" element={<AddProduct />} />
-              </Routes>
-            </main>
-            <Footer>
-              <p>Simple React &bull; styled-components &bull; Express &bull; MySQL Application</p>
-            </Footer>
-          </AppContainer>
-        </ProductProvider>
+        <AuthProvider>
+          <ProductProvider>
+            <AppContainer>
+              <Navigation />
+              <main>
+                <Routes>
+                  <Route path="/" element={<CatalogPage />} />
+                  <Route
+                    path="/add-product"
+                    element={
+                      <ProtectedRoute>
+                        <AddProduct />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route path="/login" element={<Login />} />
+                  <Route path="*" element={<CatalogPage />} />
+                </Routes>
+              </main>
+              <Footer>
+                <p>Simple React &bull; JWT Auth &bull; styled-components &bull; Express &bull; MySQL Application</p>
+              </Footer>
+            </AppContainer>
+          </ProductProvider>
+        </AuthProvider>
       </ThemeProvider>
     </BrowserRouter>
   );
