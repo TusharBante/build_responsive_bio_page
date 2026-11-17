@@ -1,28 +1,70 @@
-# Responsive Bio Page
+# Product Management System with Role-Based Access Control (RBAC)
 
-A simple and responsive Bio Page project designed to present personal information in a clean and user-friendly layout.
+A full-stack Product Management Application built using React, Node.js, Express.js, and MySQL. The application includes JWT-based authentication and role-based access control to manage product operations securely.
 
 ## 🚀 Project Overview
 
-The **Responsive Bio Page** is a web development project focused on creating a simple, accessible, and responsive web experience.
+This project is designed to manage products through a responsive React frontend and an Express.js backend connected to a MySQL database.
 
-The project uses Node.js and Express.js to serve static frontend files and provides a sample REST API for product data.
+It supports user authentication and different access permissions for Admin and Regular Users.
 
 ## ✨ Features
 
-- Responsive web page structure
-- Clean and simple user interface
-- Static file hosting using Express.js
-- Sample product data API
-- JSON-based API response
+- Responsive React user interface
+- Product listing from MySQL database
+- Add new products using a form
+- REST API integration using Fetch API
+- Loading spinner and error handling
+- React Context API for state management
+- Dark Mode and Light Mode toggle
+- JWT-based user authentication
+- Secure login and logout functionality
+- Role-Based Access Control (RBAC)
+- Admin and Regular User roles
+- Protected routes
+- Backend authentication and authorization middleware
+- Product management permissions
+
+## 🔐 Role-Based Access Control
+
+The application supports two user roles:
+
+| Feature | Admin | Regular User |
+|---|---|---|
+| View Products | Yes | Yes |
+| Add Products | Yes | No |
+| Update Products | Yes | No |
+| Delete Products | Yes | No |
+| Access Protected Pages | Yes | Based on permissions |
 
 ## 🛠️ Technologies Used
 
+**Frontend:**
+- React.js
+- JavaScript
 - HTML5
 - CSS3
-- JavaScript
+- React Context API
+- React Router
+- Styled Components
+
+**Backend:**
 - Node.js
 - Express.js
+- REST API
+- JWT Authentication
+- Express Middleware
+
+**Database:**
+- MySQL
+- mysql2
+
+**Development Tools:**
+- VS Code
+- Git
+- GitHub
+- npm
+- Vite
 
 ## 📂 Project Structure
 
@@ -30,17 +72,35 @@ The project uses Node.js and Express.js to serve static frontend files and provi
 build_responsive_bio_page/
 │
 ├── public/
-│   └── Frontend files
 │
+├── src/
+│   ├── components/
+│   │   ├── AddProduct.jsx
+│   │   ├── ProductList.jsx
+│   │   ├── ProtectedRoute.jsx
+│   │   └── Navigation.jsx
+│   │
+│   ├── context/
+│   │   ├── AuthContext.jsx
+│   │   ├── ProductContext.jsx
+│   │   └── ThemeContext.jsx
+│   │
+│   ├── App.jsx
+│   └── main.jsx
+│
+├── db.js
+├── init-db.js
 ├── server.js
 ├── package.json
 ├── package-lock.json
+├── vite.config.mjs
+├── index.html
 └── README.md
 ```
 
-## ⚙️ Installation & Setup
+*Note: Adjust the folder structure according to the actual files in your repository.*
 
-Follow these steps to run the project locally.
+## ⚙️ Installation & Setup
 
 ### 1. Clone the Repository
 
@@ -60,45 +120,67 @@ cd build_responsive_bio_page
 npm install
 ```
 
-### 4. Start the Server
+### 4. Configure MySQL Database
+
+- Create a MySQL database.
+- Configure database credentials in the environment variables or database configuration file.
+- Run the database initialization script if required.
+
+### 5. Start the Backend Server
 
 ```bash
 npm start
 ```
 
-### 5. Open in Browser
+### 6. Start the React Development Server
 
-Visit:
-
-```text
-http://localhost:3000
+```bash
+npm run dev
 ```
 
-## 🔗 API Endpoint
+Open the frontend URL displayed in the terminal.
 
-The project includes a sample product API.
+## 🔗 API Endpoints
 
-**GET /products**
+| Method | Endpoint | Description |
+|---|---|---|
+| POST | `/login` | User login |
+| GET | `/products` | Get all products |
+| POST | `/products` | Add a new product |
+| PUT | `/products/:id` | Update a product |
+| DELETE | `/products/:id` | Delete a product |
 
-```text
-http://localhost:3000/products
-```
+**Note:** Product modification endpoints require valid authentication and Admin authorization.
 
-Returns product information in JSON format.
+## 🔒 Security
 
-## 🎯 Project Objective
+- JWT-based authentication
+- Token verification middleware
+- Role-based authorization
+- Protected API endpoints
+- Input validation
+- Parameterized SQL queries to prevent SQL injection
 
-The objective of this project is to practice responsive web development, frontend design, and basic backend integration using Node.js and Express.js.
+## 🎯 Project Objectives
+
+- Understand full-stack web application development.
+- Learn React Context API and component management.
+- Implement REST API communication.
+- Integrate React with MySQL through Express.js.
+- Understand JWT authentication.
+- Implement Role-Based Access Control.
+- Learn secure backend API development.
 
 ## 👨‍💻 Author
 
 **Tushar Bante**
 
-- GitHub: [@TusharBante](https://github.com/TusharBante)
-- Repository: [Responsive Bio Page](https://github.com/TusharBante/build_responsive_bio_page)
+GitHub: [@TusharBante](https://github.com/TusharBante)
+
+Repository: [build_responsive_bio_page](https://github.com/TusharBante/build_responsive_bio_page)
 
 ---
 
 ⭐ If you find this project useful, consider giving it a star!
 
-**Made with ❤️ by Tushar Bante**
+Made with ❤️ by Tushar Bante
