@@ -12,7 +12,7 @@ It supports user authentication and different access permissions for Admin and R
 
 - Responsive React user interface
 - Product listing from MySQL database
-- Add new products using a form
+- Add, update, and delete products
 - REST API integration using Fetch API
 - Loading spinner and error handling
 - React Context API for state management
@@ -24,6 +24,7 @@ It supports user authentication and different access permissions for Admin and R
 - Protected routes
 - Backend authentication and authorization middleware
 - Product management permissions
+- Integration testing using Jest and Supertest
 
 ## 🔐 Role-Based Access Control
 
@@ -59,6 +60,11 @@ The application supports two user roles:
 - MySQL
 - mysql2
 
+**Testing:**
+- Jest
+- Supertest
+- SQLite (optional test database)
+
 **Development Tools:**
 - VS Code
 - Git
@@ -87,6 +93,9 @@ build_responsive_bio_page/
 │   │
 │   ├── App.jsx
 │   └── main.jsx
+│
+├── tests/
+│   └── products.test.js
 │
 ├── db.js
 ├── init-db.js
@@ -123,7 +132,7 @@ npm install
 ### 4. Configure MySQL Database
 
 - Create a MySQL database.
-- Configure database credentials in the environment variables or database configuration file.
+- Configure database credentials in environment variables or the database configuration file.
 - Run the database initialization script if required.
 
 ### 5. Start the Backend Server
@@ -152,6 +161,74 @@ Open the frontend URL displayed in the terminal.
 
 **Note:** Product modification endpoints require valid authentication and Admin authorization.
 
+## 🧪 Integration Testing Using Jest and Supertest
+
+This project includes an integration testing approach for the Express `/products` API using Jest and Supertest.
+
+### Testing Objectives
+
+- Test GET and POST requests.
+- Verify API responses.
+- Test error scenarios.
+- Ensure API functionality works correctly.
+
+### Task Implementation Steps
+
+**Step 1: Set Up Test Database**
+
+- Create a separate test database.
+- Alternatively, use an in-memory SQLite database for testing.
+- Keep test data separate from production data.
+
+**Step 2: Write API Integration Tests**
+
+Create a test file named `products.test.js`.
+
+Write tests for:
+
+- GET `/products` – Verify product listing.
+- POST `/products` – Verify product creation.
+- Error scenarios – Test invalid requests and server errors.
+
+**Step 3: Run Tests Using Jest**
+
+```bash
+npx jest
+```
+
+Ensure all test cases pass successfully.
+
+**Step 4: Add npm Test Script**
+
+Add the following script inside `package.json`:
+
+```json
+"scripts": {
+  "test": "jest --runInBand"
+}
+```
+
+Run the test suite using:
+
+```bash
+npm test
+```
+
+**Step 5: Document Test Execution**
+
+Document the testing setup, commands, test cases, and expected results in this README file.
+
+### Example Test Cases
+
+| Test Case | Expected Result |
+|---|---|
+| GET `/products` | Returns product list |
+| POST `/products` | Creates a new product |
+| Invalid POST request | Returns validation error |
+| Invalid API request | Returns appropriate error response |
+
+*Note: These are planned test cases. Actual results depend on the implemented test suite.*
+
 ## 🔒 Security
 
 - JWT-based authentication
@@ -170,6 +247,8 @@ Open the frontend URL displayed in the terminal.
 - Understand JWT authentication.
 - Implement Role-Based Access Control.
 - Learn secure backend API development.
+- Understand API integration testing using Jest and Supertest.
+- Test GET, POST, and error scenarios.
 
 ## 👨‍💻 Author
 
