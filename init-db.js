@@ -27,7 +27,36 @@ async function initializeDatabase() {
     ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
   `);
 
-  // Check if table is empty, and seed sample products
+  // Create users table with role column for RBAC
+  await connection.query(`
+    CREATE TABLE IF NOT EXISTS users (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      email VARCHAR(255) NOT NULL UNIQUE,
+      password VARCHAR(255) NOT NULL,
+      name VARCHAR(100),
+      role ENUM('admin', 'user') NOT NULL DEFAULT 'user',
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+  `);
+
+  // Check if users table is empty and seed demo accounts
+  const [userCount] = await connection.query('SELECT COUNT(*) as total FROM users;');
+  if (userCount[0].total === 0) {
+    const seedUsers = [
+      ['admin@example.com', 'admin123', 'Admin User', 'admin'],
+      ['user@example.com', 'user123', 'Regular User', 'user']
+    ];
+
+    await connection.query(
+      'INSERT INTO users (email, password, name, role) VALUES ?;',
+      [seedUsers]
+    );
+    console.log('Seeded admin and regular user accounts into MySQL.');
+  } else {
+    console.log(`Users table already has ${userCount[0].total} users.`);
+  }
+
+  // Check if products table is empty, and seed sample products
   const [rows] = await connection.query('SELECT COUNT(*) as total FROM products;');
   if (rows[0].total === 0) {
     const seedProducts = [

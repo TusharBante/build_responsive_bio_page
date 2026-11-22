@@ -87,6 +87,11 @@ const UserBadge = styled.span`
   border: 1px solid ${({ theme }) => theme.border};
 `;
 
+const RoleTag = styled.strong`
+  color: ${({ $isAdmin, theme }) => ($isAdmin ? '#16a34a' : theme.primary)};
+  text-transform: capitalize;
+`;
+
 const AuthBtn = styled.button`
   background: none;
   border: 1px solid ${({ theme }) => theme.borderInput};
@@ -126,11 +131,11 @@ const ThemeToggleBtn = styled.button`
   }
 `;
 
-// Navigation Component
+// Navigation Component with Role-Based Access Control
 function Navigation() {
   const location = useLocation();
   const { themeMode, toggleTheme } = useTheme();
-  const { isAuthenticated, user, logout } = useAuth();
+  const { isAuthenticated, isAdmin, user, logout } = useAuth();
 
   return (
     <Navbar>
@@ -140,9 +145,13 @@ function Navigation() {
           <NavLinkItem to="/" $isActive={location.pathname === '/'}>
             Catalog
           </NavLinkItem>
-          <NavLinkItem to="/add-product" $isActive={location.pathname === '/add-product'}>
-            ➕ Add Product
-          </NavLinkItem>
+
+          {/* Role-Based: Only Admin can see the Add Product navigation link */}
+          {isAdmin && (
+            <NavLinkItem to="/add-product" $isActive={location.pathname === '/add-product'}>
+              ➕ Add Product
+            </NavLinkItem>
+          )}
 
           {!isAuthenticated ? (
             <NavLinkItem to="/login" $isActive={location.pathname === '/login'}>
@@ -150,7 +159,9 @@ function Navigation() {
             </NavLinkItem>
           ) : (
             <>
-              <UserBadge title={user?.email}>👤 {user?.name || 'User'}</UserBadge>
+              <UserBadge title={user?.email}>
+                👤 {user?.name || 'User'} (<RoleTag $isAdmin={isAdmin}>{user?.role || 'user'}</RoleTag>)
+              </UserBadge>
               <AuthBtn type="button" onClick={logout} title="Sign Out">
                 Sign Out
               </AuthBtn>

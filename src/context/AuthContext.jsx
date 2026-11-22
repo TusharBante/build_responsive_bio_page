@@ -3,7 +3,7 @@ import React, { createContext, useState, useContext } from 'react';
 // 1. Create AuthContext
 export const AuthContext = createContext();
 
-// 2. AuthProvider Component managing authentication state & localStorage persistence
+// 2. AuthProvider Component managing authentication state, roles & localStorage persistence
 export function AuthProvider({ children }) {
   const [token, setToken] = useState(() => localStorage.getItem('token') || null);
   const [user, setUser] = useState(() => {
@@ -15,7 +15,7 @@ export function AuthProvider({ children }) {
     }
   });
 
-  // Save token and user on successful login
+  // Save token and user info on successful login
   const login = (jwtToken, userData) => {
     localStorage.setItem('token', jwtToken);
     localStorage.setItem('user', JSON.stringify(userData));
@@ -23,7 +23,7 @@ export function AuthProvider({ children }) {
     setUser(userData);
   };
 
-  // Clear token and user on logout
+  // Clear token and user info on logout
   const logout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
@@ -32,11 +32,15 @@ export function AuthProvider({ children }) {
   };
 
   const isAuthenticated = Boolean(token);
+  // Role-Based Access Control helper
+  const isAdmin = user?.role === 'admin';
 
   const value = {
     token,
     user,
     isAuthenticated,
+    isAdmin,
+    role: user?.role || 'guest',
     login,
     logout
   };
@@ -48,7 +52,7 @@ export function AuthProvider({ children }) {
   );
 }
 
-// Hook to consume AuthContext cleanly
+// Custom hook to consume AuthContext cleanly
 export const useAuth = () => useContext(AuthContext);
 
 export default AuthContext;

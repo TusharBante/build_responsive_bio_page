@@ -74,7 +74,7 @@ function App() {
                   <Route
                     path="/add-product"
                     element={
-                      <ProtectedRoute>
+                      <ProtectedRoute adminOnly={true}>
                         <AddProduct />
                       </ProtectedRoute>
                     }

@@ -204,8 +204,9 @@ function Login() {
 
       setSuccessMessage('🎉 Login successful! Redirecting...');
 
-      // Redirect user to their intended destination or default to /add-product
-      const destination = location.state?.from?.pathname || '/add-product';
+      // Redirect: Admin goes to requested destination or /add-product, regular user goes to catalog
+      const defaultDest = data.user?.role === 'admin' ? '/add-product' : '/';
+      const destination = location.state?.from?.pathname || defaultDest;
       setTimeout(() => {
         navigate(destination, { replace: true });
       }, 1000);
@@ -269,9 +270,11 @@ function Login() {
         </form>
 
         <DemoCredentialsBox>
-          <strong>Demo Credentials:</strong><br />
-          Email: <code>admin@example.com</code><br />
-          Password: <code>admin123</code> (or any password &ge; 6 characters)
+          <strong>Demo Accounts (Role-Based Access Control):</strong><br />
+          👑 <strong>Admin:</strong> <code>admin@example.com</code> / <code>admin123</code><br />
+          <em>(Permissions: Add, Edit & Delete Products)</em><br /><br />
+          👤 <strong>Regular User:</strong> <code>user@example.com</code> / <code>user123</code><br />
+          <em>(Permissions: View Product Catalog Only; Add/Edit/Delete Hidden)</em>
         </DemoCredentialsBox>
       </LoginCard>
     </LoginWrapper>
