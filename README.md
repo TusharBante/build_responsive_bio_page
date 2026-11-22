@@ -1,129 +1,135 @@
-## 🌐 Developer Portfolio Website
+## 🐳 Docker Containerization
 
-A professional portfolio website created to showcase the Product Management System and its full-stack development journey. The portfolio includes project information, screenshots, technologies used, lessons learned, and links to the live application and GitHub repository.
+The Express.js CRUD API is containerized using Docker to provide a consistent and portable application environment.
 
-### ✨ Portfolio Features
+### ✨ Docker Features
 
-- Professional and responsive portfolio design
-- About section introducing the developer
-- Projects section showcasing the Product Management System
-- Application screenshots and project descriptions
-- Technologies and tools used
-- Lessons learned during development
-- Live application deployment link
-- GitHub source code link
-- Contact section
-- Hosted using GitHub Pages
+- Containerize the Express.js application.
+- Create a Docker image using Dockerfile.
+- Use `.dockerignore` to exclude unnecessary files.
+- Run the application inside a Docker container.
+- Map container ports to the local machine.
+- Test API endpoints inside the running container.
 
 ### 🛠️ Technologies Used
 
-- HTML5
-- CSS3
-- JavaScript
-- Git and GitHub
-- GitHub Pages
-
-### 📋 Portfolio Implementation Steps
-
-**Step 1: Create a GitHub Repository**
-
-- Open GitHub.
-- Create a new public repository named `portfolio`.
-- Clone the repository to your local computer.
-
-```bash
-git clone https://github.com/TusharBante/portfolio.git
-cd portfolio
-```
-
-**Step 2: Create index.html**
-
-Create an `index.html` file containing the following sections:
-
-1. About – Developer introduction and background.
-2. Projects – Product Management System project details.
-3. Contact – Contact information and GitHub profile.
-
-**Step 3: Add Project Screenshots and Description**
-
-Include screenshots of the Product Management System.
-
-Project description:
-
-The Product Management System is a full-stack web application developed using React.js, Node.js, Express.js, and MySQL. It provides product management functionality with JWT authentication and Role-Based Access Control (RBAC).
-
-**Technologies Used:**
-- React.js
 - Node.js
 - Express.js
-- MySQL
-- JWT Authentication
-- Jest and Supertest
+- Docker
+- REST API
+- JavaScript
 
-**Lessons Learned:**
-- Full-stack application development.
-- REST API development and integration.
-- Database connectivity using MySQL.
-- JWT authentication and role-based authorization.
-- API integration testing.
-- Application deployment using Render.
-- Portfolio hosting using GitHub Pages.
+### 📋 Docker Implementation Steps
 
-**Step 4: Deploy Using GitHub Pages**
+**Step 1: Create a Dockerfile**
 
-- Open the `portfolio` repository on GitHub.
-- Navigate to Settings.
-- Select Pages.
-- Choose Deploy from a branch.
-- Select the `gh-pages` branch.
-- Select the root folder.
-- Save the configuration.
-- Wait for GitHub Pages deployment.
+Create a file named `Dockerfile` in the project root directory.
 
-**Step 5: Add Project Links**
+```dockerfile
+FROM node:22
 
-Include the following links in the portfolio:
+WORKDIR /app
 
-| Resource | Link |
+COPY package*.json ./
+
+RUN npm install
+
+COPY . .
+
+EXPOSE 3000
+
+CMD ["node", "server.js"]
+```
+
+**Step 2: Create a .dockerignore File**
+
+Create a `.dockerignore` file to exclude unnecessary files from the Docker image.
+
+```text
+node_modules
+npm-debug.log
+.git
+.env
+.gitignore
+```
+
+**Step 3: Build the Docker Image**
+
+Open the terminal in the project directory and execute:
+
+```bash
+docker build -t notes-api .
+```
+
+This command creates a Docker image named `notes-api`.
+
+**Step 4: Run the Docker Container**
+
+Execute the following command:
+
+```bash
+docker run -p 3000:3000 notes-api
+```
+
+This command starts the container and maps port 3000 of the host machine to port 3000 inside the container.
+
+**Step 5: Test API Endpoints**
+
+Open Postman or use a browser to test the running API.
+
+Base URL:
+
+```text
+http://localhost:3000
+```
+
+Test the following endpoints:
+
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/products` | Retrieve all products |
+| POST | `/products` | Create a new product |
+| PUT | `/products/:id` | Update a product |
+| DELETE | `/products/:id` | Delete a product |
+
+Verify that the API returns the expected responses from inside the running Docker container.
+
+### 🔧 Useful Docker Commands
+
+| Command | Description |
 |---|---|
-| Portfolio Website | `https://tusharbante.github.io/portfolio/` |
-| Live Application | Your Render deployment URL |
-| GitHub Source Code | `https://github.com/TusharBante/build_responsive_bio_page` |
-| GitHub Profile | `https://github.com/TusharBante` |
-
-### 📸 Portfolio Screenshots
-
-Add screenshots of the following:
-
-- Portfolio homepage
-- About section
-- Product Management System dashboard
-- Product listing page
-- Admin product management functionality
+| `docker --version` | Check Docker version |
+| `docker build -t notes-api .` | Build Docker image |
+| `docker images` | List Docker images |
+| `docker run -p 3000:3000 notes-api` | Run container |
+| `docker ps` | View running containers |
+| `docker stop <container_id>` | Stop container |
+| `docker logs <container_id>` | View container logs |
 
 ### 🎯 Project Objectives
 
-- Create a professional developer portfolio.
-- Showcase full-stack application development skills.
-- Present project screenshots and descriptions.
-- Demonstrate practical knowledge of React, Node.js, Express.js, and MySQL.
-- Share live application and source code links.
-- Learn GitHub Pages deployment.
+- Understand Docker containerization.
+- Learn how to create a Dockerfile.
+- Understand Docker image creation.
+- Run Express.js applications inside containers.
+- Learn port mapping.
+- Test REST API endpoints inside Docker containers.
+- Understand application portability and deployment.
 
-### 🚀 Deployment Platform
+### 🚀 Docker Deployment Summary
 
-**Hosting Platform:** GitHub Pages
+**Application:** Express.js CRUD API
 
-**Repository Name:** portfolio
+**Containerization Tool:** Docker
 
-**Deployment Branch:** gh-pages
+**Base Image:** Node.js 22
 
-**Main File:** index.html
+**Docker Image Name:** notes-api
 
-**Live Portfolio:** https://tusharbante.github.io/portfolio/
+**Container Port:** 3000
 
-*Note: The portfolio URL becomes accessible after successful GitHub Pages deployment.*
+**Host Port:** 3000
 
----
+**API Testing:** Postman / Browser
 
-Made with ❤️ by Tushar Bante
+*Note: The Express application must listen on port 3000 for this configuration.
