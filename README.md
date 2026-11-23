@@ -1,81 +1,102 @@
-## 🐳 Docker Containerization
+## 📝 Notes CRUD API with MySQL
 
-The Express.js CRUD API is containerized using Docker to provide a consistent and portable application environment.
+A RESTful Notes Management API built using Node.js, Express.js, and MySQL. This application provides complete CRUD (Create, Read, Update, Delete) operations to manage notes with database connectivity, input validation, and error handling.
 
-### ✨ Docker Features
+### ✨ Features
 
-- Containerize the Express.js application.
-- Create a Docker image using Dockerfile.
-- Use `.dockerignore` to exclude unnecessary files.
-- Run the application inside a Docker container.
-- Map container ports to the local machine.
-- Test API endpoints inside the running container.
+- Express.js REST API
+- MySQL database integration
+- Create new notes
+- Retrieve all notes
+- Retrieve individual notes
+- Update existing notes
+- Delete notes
+- Input validation
+- Error handling
+- Parameterized SQL queries
+- JSON request and response handling
 
 ### 🛠️ Technologies Used
 
 - Node.js
 - Express.js
-- Docker
-- REST API
+- MySQL
+- mysql2
 - JavaScript
+- REST API
+- Postman
 
-### 📋 Docker Implementation Steps
+### 📋 Implementation Steps
 
-**Step 1: Create a Dockerfile**
+**Step 1: Initialize Express Project and Install MySQL Driver**
 
-Create a file named `Dockerfile` in the project root directory.
-
-```dockerfile
-FROM node:22
-
-WORKDIR /app
-
-COPY package*.json ./
-
-RUN npm install
-
-COPY . .
-
-EXPOSE 3000
-
-CMD ["node", "server.js"]
-```
-
-**Step 2: Create a .dockerignore File**
-
-Create a `.dockerignore` file to exclude unnecessary files from the Docker image.
-
-```text
-node_modules
-npm-debug.log
-.git
-.env
-.gitignore
-```
-
-**Step 3: Build the Docker Image**
-
-Open the terminal in the project directory and execute:
+Create a new project directory and initialize Node.js.
 
 ```bash
-docker build -t notes-api .
+mkdir notes-api
+cd notes-api
+npm init -y
 ```
 
-This command creates a Docker image named `notes-api`.
-
-**Step 4: Run the Docker Container**
-
-Execute the following command:
+Install the required dependencies:
 
 ```bash
-docker run -p 3000:3000 notes-api
+npm install express mysql2 dotenv
+npm install --save-dev nodemon
 ```
 
-This command starts the container and maps port 3000 of the host machine to port 3000 inside the container.
+**Step 2: Design Notes Table Schema and Run Migrations**
 
-**Step 5: Test API Endpoints**
+Create a MySQL database named `notes_db`.
 
-Open Postman or use a browser to test the running API.
+Create the notes table using the following SQL query:
+
+```sql
+CREATE DATABASE notes_db;
+
+USE notes_db;
+
+CREATE TABLE notes (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    content TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+Create a database connection file named `db.js`.
+
+Configure database credentials using environment variables.
+
+**Step 3: Implement CRUD API Routes**
+
+Implement the following REST API endpoints:
+
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/notes` | Retrieve all notes |
+| GET | `/notes/:id` | Retrieve a specific note |
+| POST | `/notes` | Create a new note |
+| PUT | `/notes/:id` | Update an existing note |
+| DELETE | `/notes/:id` | Delete a note |
+
+**Step 4: Add Error Handling and Input Validation**
+
+- Validate note title and content.
+- Ensure required fields are provided.
+- Check whether a note exists before updating or deleting.
+- Handle invalid IDs.
+- Handle database connection errors.
+- Return appropriate HTTP status codes.
+- Use parameterized SQL queries to prevent SQL injection.
+
+**Step 5: Test API Using Postman**
+
+Start the Express server:
+
+```bash
+node server.js
+```
 
 Base URL:
 
@@ -83,53 +104,71 @@ Base URL:
 http://localhost:3000
 ```
 
-Test the following endpoints:
+Test the following operations using Postman:
 
-| Method | Endpoint | Description |
-|---|---|---|
-| GET | `/products` | Retrieve all products |
-| POST | `/products` | Create a new product |
-| PUT | `/products/:id` | Update a product |
-| DELETE | `/products/:id` | Delete a product |
+| Operation | Method | Endpoint | Expected Result |
+|---|---|---|---|
+| Create Note | POST | `/notes` | 201 Created |
+| Get All Notes | GET | `/notes` | 200 OK |
+| Get Note by ID | GET | `/notes/1` | 200 OK |
+| Update Note | PUT | `/notes/1` | 200 OK |
+| Delete Note | DELETE | `/notes/1` | 200 OK |
 
-Verify that the API returns the expected responses from inside the running Docker container.
+### 📂 Project Structure
 
-### 🔧 Useful Docker Commands
+```text
+notes-api/
+│
+├── db.js
+├── server.js
+├── .env
+├── .env.example
+├── .gitignore
+├── package.json
+└── README.md
+```
 
-| Command | Description |
-|---|---|
-| `docker --version` | Check Docker version |
-| `docker build -t notes-api .` | Build Docker image |
-| `docker images` | List Docker images |
-| `docker run -p 3000:3000 notes-api` | Run container |
-| `docker ps` | View running containers |
-| `docker stop <container_id>` | Stop container |
-| `docker logs <container_id>` | View container logs |
+### ⚙️ Environment Configuration
+
+Create a `.env` file:
+
+```env
+PORT=3000
+DB_HOST=localhost
+DB_USER=root
+DB_PASSWORD=your_password
+DB_NAME=notes_db
+```
+
+Keep database credentials private and exclude `.env` from GitHub.
 
 ### 🎯 Project Objectives
 
-- Understand Docker containerization.
-- Learn how to create a Dockerfile.
-- Understand Docker image creation.
-- Run Express.js applications inside containers.
-- Learn port mapping.
-- Test REST API endpoints inside Docker containers.
-- Understand application portability and deployment.
+- Understand Node.js and Express.js development.
+- Learn MySQL database connectivity.
+- Design and implement database schemas.
+- Perform CRUD operations using REST APIs.
+- Implement input validation and error handling.
+- Understand HTTP methods and status codes.
+- Test REST API endpoints using Postman.
+- Learn secure database query handling.
 
-### 🚀 Docker Deployment Summary
+### 🚀 API Summary
 
-**Application:** Express.js CRUD API
+**Project Name:** Notes CRUD API
 
-**Containerization Tool:** Docker
+**Backend:** Node.js and Express.js
 
-**Base Image:** Node.js 22
+**Database:** MySQL
 
-**Docker Image Name:** notes-api
+**Database Driver:** mysql2
 
-**Container Port:** 3000
+**API Architecture:** REST
 
-**Host Port:** 3000
+**Testing Tool:** Postman
 
-**API Testing:** Postman / Browser
+**Port:** 3000
 
-*Note: The Express application must listen on port 3000 for this configuration.
+---
+
+Made with ❤️ by Tushar Bante
