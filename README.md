@@ -1,20 +1,18 @@
-## 📝 Notes CRUD API with MySQL
+## 🔐 JWT-Based Authentication for Notes CRUD API
 
-A RESTful Notes Management API built using Node.js, Express.js, and MySQL. This application provides complete CRUD (Create, Read, Update, Delete) operations to manage notes with database connectivity, input validation, and error handling.
+The Notes CRUD API is secured using JSON Web Token (JWT) authentication. Users must register and log in to access protected notes endpoints. After successful authentication, the server generates a JWT token that must be included in the Authorization header for accessing protected routes.
 
-### ✨ Features
+### ✨ Authentication Features
 
-- Express.js REST API
-- MySQL database integration
-- Create new notes
-- Retrieve all notes
-- Retrieve individual notes
-- Update existing notes
-- Delete notes
-- Input validation
-- Error handling
-- Parameterized SQL queries
-- JSON request and response handling
+- User registration
+- User login
+- Password hashing using bcrypt
+- JWT token generation
+- JWT token verification
+- Authentication middleware
+- Protected Notes CRUD endpoints
+- Secure Authorization header
+- Unauthorized request handling
 
 ### 🛠️ Technologies Used
 
@@ -22,102 +20,148 @@ A RESTful Notes Management API built using Node.js, Express.js, and MySQL. This 
 - Express.js
 - MySQL
 - mysql2
-- JavaScript
-- REST API
+- JSON Web Token (jsonwebtoken)
+- bcrypt
+- dotenv
 - Postman
 
-### 📋 Implementation Steps
+### 📋 JWT Implementation Steps
 
-**Step 1: Initialize Express Project and Install MySQL Driver**
+**Step 1: Create User Model and Registration Endpoint**
 
-Create a new project directory and initialize Node.js.
-
-```bash
-mkdir notes-api
-cd notes-api
-npm init -y
-```
-
-Install the required dependencies:
-
-```bash
-npm install express mysql2 dotenv
-npm install --save-dev nodemon
-```
-
-**Step 2: Design Notes Table Schema and Run Migrations**
-
-Create a MySQL database named `notes_db`.
-
-Create the notes table using the following SQL query:
+Create a users table in the MySQL database.
 
 ```sql
-CREATE DATABASE notes_db;
-
-USE notes_db;
-
-CREATE TABLE notes (
+CREATE TABLE users (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    title VARCHAR(255) NOT NULL,
-    content TEXT NOT NULL,
+    username VARCHAR(100) NOT NULL,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 ```
 
-Create a database connection file named `db.js`.
+Implement the registration endpoint:
 
-Configure database credentials using environment variables.
+`POST /register`
 
-**Step 3: Implement CRUD API Routes**
+- Accept username, email, and password.
+- Validate user input.
+- Hash the password using bcrypt.
+- Store the user details in MySQL.
+- Prevent duplicate email registration.
 
-Implement the following REST API endpoints:
+**Step 2: Implement Login Route and JWT Generation**
 
-| Method | Endpoint | Description |
-|---|---|---|
-| GET | `/notes` | Retrieve all notes |
-| GET | `/notes/:id` | Retrieve a specific note |
-| POST | `/notes` | Create a new note |
-| PUT | `/notes/:id` | Update an existing note |
-| DELETE | `/notes/:id` | Delete a note |
+Create a login endpoint:
 
-**Step 4: Add Error Handling and Input Validation**
+`POST /login`
 
-- Validate note title and content.
-- Ensure required fields are provided.
-- Check whether a note exists before updating or deleting.
-- Handle invalid IDs.
-- Handle database connection errors.
-- Return appropriate HTTP status codes.
-- Use parameterized SQL queries to prevent SQL injection.
+- Accept email and password.
+- Find the registered user in MySQL.
+- Compare the password using bcrypt.
+- Generate a JWT token after successful authentication.
+- Return the token in the response.
 
-**Step 5: Test API Using Postman**
+Example JWT generation:
 
-Start the Express server:
+```javascript
+const jwt = require("jsonwebtoken");
 
-```bash
-node server.js
+const token = jwt.sign(
+    { id: user.id },
+    process.env.JWT_SECRET,
+    { expiresIn: "1h" }
+);
 ```
 
-Base URL:
+**Step 3: Create JWT Authentication Middleware**
+
+Create a middleware file named `authMiddleware.js`.
+
+The middleware should:
+
+- Read the Authorization header.
+- Extract the Bearer token.
+- Verify the JWT token.
+- Reject invalid or expired tokens.
+- Allow authenticated users to access protected routes.
+
+**Step 4: Protect Notes CRUD Routes**
+
+Apply JWT authentication middleware to all notes endpoints.
+
+| Method | Endpoint | Access |
+|---|---|---|
+| POST | `/register` | Public |
+| POST | `/login` | Public |
+| GET | `/notes` | Authenticated |
+| GET | `/notes/:id` | Authenticated |
+| POST | `/notes` | Authenticated |
+| PUT | `/notes/:id` | Authenticated |
+| DELETE | `/notes/:id` | Authenticated |
+
+All Notes CRUD endpoints require a valid JWT token.
+
+**Step 5: Test Protected Routes Using Postman**
+
+Use Postman to verify authentication and protected API functionality.
+
+For protected endpoints, add the following header:
 
 ```text
-http://localhost:3000
+Authorization: Bearer YOUR_JWT_TOKEN
 ```
 
-Test the following operations using Postman:
+### 🧪 Authentication Test Cases
 
-| Operation | Method | Endpoint | Expected Result |
-|---|---|---|---|
-| Create Note | POST | `/notes` | 201 Created |
-| Get All Notes | GET | `/notes` | 200 OK |
-| Get Note by ID | GET | `/notes/1` | 200 OK |
-| Update Note | PUT | `/notes/1` | 200 OK |
-| Delete Note | DELETE | `/notes/1` | 200 OK |
+| Test Case | Expected Result |
+|---|---|
+| Register with valid details | 201 Created |
+| Register with duplicate email | 409 Conflict |
+| Login with valid credentials | 200 OK with JWT |
+| Login with incorrect password | 401 Unauthorized |
+| Access notes without token | 401 Unauthorized |
+| Access notes with invalid token | 401 Unauthorized |
+| Access notes with valid token | Successful response |
+| Access notes with expired token | 401 Unauthorized |
 
-### 📂 Project Structure
+### ⚙️ Environment Variables
+
+Add the following variables to the `.env` file:
+
+```env
+PORT=3000
+DB_HOST=localhost
+DB_USER=root
+DB_PASSWORD=your_password
+DB_NAME=notes_db
+JWT_SECRET=your_secure_secret_key
+```
+
+**Security Guidelines:**
+
+- Never hard-code JWT secrets.
+- Store sensitive configuration in environment variables.
+- Never store plain-text passwords.
+- Use bcrypt password hashing.
+- Validate JWT tokens on protected routes.
+- Keep `.env` excluded from GitHub.
+
+### 📂 Updated Project Structure
 
 ```text
 notes-api/
+│
+├── middleware/
+│   └── authMiddleware.js
+│
+├── routes/
+│   ├── authRoutes.js
+│   └── notesRoutes.js
+│
+├── models/
+│   └── userModel.js
 │
 ├── db.js
 ├── server.js
@@ -128,46 +172,32 @@ notes-api/
 └── README.md
 ```
 
-### ⚙️ Environment Configuration
-
-Create a `.env` file:
-
-```env
-PORT=3000
-DB_HOST=localhost
-DB_USER=root
-DB_PASSWORD=your_password
-DB_NAME=notes_db
-```
-
-Keep database credentials private and exclude `.env` from GitHub.
-
 ### 🎯 Project Objectives
 
-- Understand Node.js and Express.js development.
-- Learn MySQL database connectivity.
-- Design and implement database schemas.
-- Perform CRUD operations using REST APIs.
-- Implement input validation and error handling.
-- Understand HTTP methods and status codes.
-- Test REST API endpoints using Postman.
-- Learn secure database query handling.
+- Understand JWT-based authentication.
+- Implement user registration and login.
+- Learn password hashing using bcrypt.
+- Generate and verify JWT tokens.
+- Develop authentication middleware.
+- Secure REST API endpoints.
+- Test protected routes using Postman.
+- Understand secure backend development.
 
-### 🚀 API Summary
+### 🚀 Authentication Summary
 
-**Project Name:** Notes CRUD API
+**Authentication Method:** JSON Web Token (JWT)
 
-**Backend:** Node.js and Express.js
+**Password Security:** bcrypt
 
 **Database:** MySQL
 
-**Database Driver:** mysql2
+**Backend:** Node.js and Express.js
 
-**API Architecture:** REST
+**Token Expiration:** 1 Hour
 
 **Testing Tool:** Postman
 
-**Port:** 3000
+**Protected Resources:** Notes CRUD API
 
 ---
 
