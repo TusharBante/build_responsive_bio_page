@@ -1,203 +1,219 @@
-## 🔐 JWT-Based Authentication for Notes CRUD API
+## ⚛️ React Frontend with Redux Toolkit – Notes Management
 
-The Notes CRUD API is secured using JSON Web Token (JWT) authentication. Users must register and log in to access protected notes endpoints. After successful authentication, the server generates a JWT token that must be included in the Authorization header for accessing protected routes.
+A React-based frontend application integrated with the secured Notes REST API using Redux Toolkit. The application allows authenticated users to create, view, update, and delete notes through asynchronous API requests.
 
-### ✨ Authentication Features
+Redux Toolkit is used for centralized state management and synchronization between the React frontend and Express.js backend.
 
-- User registration
-- User login
-- Password hashing using bcrypt
-- JWT token generation
-- JWT token verification
-- Authentication middleware
-- Protected Notes CRUD endpoints
-- Secure Authorization header
-- Unauthorized request handling
+### ✨ Features
+
+- React-based user interface
+- Redux Toolkit for state management
+- Centralized Redux store
+- Notes management using Redux Slice
+- Async Thunks for API operations
+- Fetch all notes
+- Add new notes
+- Update existing notes
+- Delete notes
+- JWT-based authentication
+- Secure API requests using Authorization headers
+- Authentication token storage
+- Loading and error state handling
+- Backend and frontend data synchronization
+- Responsive notes management interface
 
 ### 🛠️ Technologies Used
 
+**Frontend:**
+- React.js
+- JavaScript
+- HTML5
+- CSS3
+
+**State Management:**
+- Redux Toolkit
+- React Redux
+- Redux Slice
+- createAsyncThunk
+
+**Backend:**
 - Node.js
 - Express.js
+- REST API
+- JWT Authentication
+
+**Database:**
 - MySQL
 - mysql2
-- JSON Web Token (jsonwebtoken)
-- bcrypt
-- dotenv
-- Postman
 
-### 📋 JWT Implementation Steps
+**API Integration:**
+- Fetch API or Axios
+- Authorization Headers
+- JSON
 
-**Step 1: Create User Model and Registration Endpoint**
+### 📋 Implementation Steps
 
-Create a users table in the MySQL database.
+**Step 1: Set Up Redux Store with Notes Slice**
 
-```sql
-CREATE TABLE users (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    username VARCHAR(100) NOT NULL,
-    email VARCHAR(255) UNIQUE NOT NULL,
-    password VARCHAR(255) NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+Install the required dependencies:
+
+```bash
+npm install @reduxjs/toolkit react-redux
 ```
 
-Implement the registration endpoint:
+Create a Redux store to manage application state.
 
-`POST /register`
+Create a notes slice to maintain:
+- Notes list
+- Loading status
+- Error messages
+- Selected note
 
-- Accept username, email, and password.
-- Validate user input.
-- Hash the password using bcrypt.
-- Store the user details in MySQL.
-- Prevent duplicate email registration.
-
-**Step 2: Implement Login Route and JWT Generation**
-
-Create a login endpoint:
-
-`POST /login`
-
-- Accept email and password.
-- Find the registered user in MySQL.
-- Compare the password using bcrypt.
-- Generate a JWT token after successful authentication.
-- Return the token in the response.
-
-Example JWT generation:
-
-```javascript
-const jwt = require("jsonwebtoken");
-
-const token = jwt.sign(
-    { id: user.id },
-    process.env.JWT_SECRET,
-    { expiresIn: "1h" }
-);
-```
-
-**Step 3: Create JWT Authentication Middleware**
-
-Create a middleware file named `authMiddleware.js`.
-
-The middleware should:
-
-- Read the Authorization header.
-- Extract the Bearer token.
-- Verify the JWT token.
-- Reject invalid or expired tokens.
-- Allow authenticated users to access protected routes.
-
-**Step 4: Protect Notes CRUD Routes**
-
-Apply JWT authentication middleware to all notes endpoints.
-
-| Method | Endpoint | Access |
-|---|---|---|
-| POST | `/register` | Public |
-| POST | `/login` | Public |
-| GET | `/notes` | Authenticated |
-| GET | `/notes/:id` | Authenticated |
-| POST | `/notes` | Authenticated |
-| PUT | `/notes/:id` | Authenticated |
-| DELETE | `/notes/:id` | Authenticated |
-
-All Notes CRUD endpoints require a valid JWT token.
-
-**Step 5: Test Protected Routes Using Postman**
-
-Use Postman to verify authentication and protected API functionality.
-
-For protected endpoints, add the following header:
+Example project structure:
 
 ```text
-Authorization: Bearer YOUR_JWT_TOKEN
+src/
+│
+├── app/
+│   └── store.js
+│
+├── features/
+│   └── notes/
+│       └── notesSlice.js
+│
+├── components/
+│   ├── NotesList.jsx
+│   ├── AddNote.jsx
+│   └── EditNote.jsx
+│
+├── App.jsx
+└── main.jsx
 ```
 
-### 🧪 Authentication Test Cases
+**Step 2: Create Async Thunks for Notes API Operations**
+
+Use Redux Toolkit's `createAsyncThunk` to perform asynchronous API requests.
+
+Implement the following operations:
+
+- Fetch Notes – GET `/notes`
+- Add Note – POST `/notes`
+- Update Note – PUT `/notes/:id`
+- Delete Note – DELETE `/notes/:id`
+
+Handle the following states:
+- Pending – API request is in progress.
+- Fulfilled – API request completed successfully.
+- Rejected – API request failed.
+
+**Step 3: Design React Components for Notes Management**
+
+Create React components for:
+
+- Notes List – Display all available notes.
+- Add Note – Form to create a new note.
+- Edit Note – Update existing note details.
+- Delete Note – Remove a note.
+- Authentication – Handle user login and token access.
+
+Use React components and Redux selectors to display and manage notes.
+
+**Step 4: Handle Authentication Token Storage**
+
+After successful login, store the JWT token using an appropriate browser storage mechanism.
+
+Include the JWT token in API requests through the Authorization header.
+
+Example:
+
+```javascript
+const token = localStorage.getItem("token");
+
+const response = await fetch(
+  "http://localhost:3000/notes",
+  {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json"
+    }
+  }
+);
+```
+
+**Security Note:** Never store sensitive information such as passwords in browser storage. Clear the authentication token during logout and handle expired tokens appropriately.
+
+**Step 5: Test the UI and Backend Synchronization**
+
+Verify that all frontend operations work correctly with the secured backend API.
+
+Testing checklist:
+
+- Login and obtain JWT token.
+- Fetch notes from the backend.
+- Add a new note.
+- Update an existing note.
+- Delete a note.
+- Verify Redux state updates after API operations.
+- Test API requests without authentication.
+- Handle loading and error states.
+- Verify that backend data and frontend state remain synchronized.
+
+### 🔗 API Integration
+
+| Operation | HTTP Method | Endpoint |
+|---|---|---|
+| Fetch Notes | GET | `/notes` |
+| Add Note | POST | `/notes` |
+| Update Note | PUT | `/notes/:id` |
+| Delete Note | DELETE | `/notes/:id` |
+
+All Notes API requests require a valid JWT authentication token.
+
+### 🧪 Testing Checklist
 
 | Test Case | Expected Result |
 |---|---|
-| Register with valid details | 201 Created |
-| Register with duplicate email | 409 Conflict |
-| Login with valid credentials | 200 OK with JWT |
-| Login with incorrect password | 401 Unauthorized |
-| Access notes without token | 401 Unauthorized |
-| Access notes with invalid token | 401 Unauthorized |
-| Access notes with valid token | Successful response |
-| Access notes with expired token | 401 Unauthorized |
-
-### ⚙️ Environment Variables
-
-Add the following variables to the `.env` file:
-
-```env
-PORT=3000
-DB_HOST=localhost
-DB_USER=root
-DB_PASSWORD=your_password
-DB_NAME=notes_db
-JWT_SECRET=your_secure_secret_key
-```
-
-**Security Guidelines:**
-
-- Never hard-code JWT secrets.
-- Store sensitive configuration in environment variables.
-- Never store plain-text passwords.
-- Use bcrypt password hashing.
-- Validate JWT tokens on protected routes.
-- Keep `.env` excluded from GitHub.
-
-### 📂 Updated Project Structure
-
-```text
-notes-api/
-│
-├── middleware/
-│   └── authMiddleware.js
-│
-├── routes/
-│   ├── authRoutes.js
-│   └── notesRoutes.js
-│
-├── models/
-│   └── userModel.js
-│
-├── db.js
-├── server.js
-├── .env
-├── .env.example
-├── .gitignore
-├── package.json
-└── README.md
-```
+| Fetch notes | Notes displayed in UI |
+| Add note | New note appears in list |
+| Update note | Updated details displayed |
+| Delete note | Note removed from list |
+| API request without token | 401 Unauthorized |
+| Invalid token | 401 Unauthorized |
+| API loading | Loading indicator displayed |
+| API error | Error message displayed |
 
 ### 🎯 Project Objectives
 
-- Understand JWT-based authentication.
-- Implement user registration and login.
-- Learn password hashing using bcrypt.
-- Generate and verify JWT tokens.
-- Develop authentication middleware.
-- Secure REST API endpoints.
-- Test protected routes using Postman.
-- Understand secure backend development.
+- Understand React Redux architecture.
+- Implement centralized state management.
+- Learn Redux Toolkit and Redux Slice.
+- Use createAsyncThunk for asynchronous operations.
+- Integrate React with REST APIs.
+- Implement JWT-based API authentication.
+- Manage authentication tokens.
+- Synchronize frontend and backend data.
+- Handle API loading and error states.
+- Build a secure Notes Management interface.
 
-### 🚀 Authentication Summary
+### 🚀 Integration Summary
 
-**Authentication Method:** JSON Web Token (JWT)
+**Frontend:** React.js
 
-**Password Security:** bcrypt
+**State Management:** Redux Toolkit
 
-**Database:** MySQL
+**Redux Middleware:** createAsyncThunk
 
 **Backend:** Node.js and Express.js
 
-**Token Expiration:** 1 Hour
+**Database:** MySQL
+
+**Authentication:** JWT
+
+**API Integration:** Fetch API / Axios
+
+**API Operations:** GET, POST, PUT, DELETE
 
 **Testing Tool:** Postman
-
-**Protected Resources:** Notes CRUD API
 
 ---
 
