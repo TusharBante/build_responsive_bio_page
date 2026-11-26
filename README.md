@@ -1,219 +1,230 @@
-## ⚛️ React Frontend with Redux Toolkit – Notes Management
+## 🧪 Automated Testing for Notes CRUD API
 
-A React-based frontend application integrated with the secured Notes REST API using Redux Toolkit. The application allows authenticated users to create, view, update, and delete notes through asynchronous API requests.
+The Notes CRUD API includes an automated testing approach using Jest and Supertest to verify API functionality, HTTP status codes, response data, and error handling.
 
-Redux Toolkit is used for centralized state management and synchronization between the React frontend and Express.js backend.
+The test suite covers all CRUD endpoints to ensure the API works correctly and reliably.
 
-### ✨ Features
+### ✨ Testing Features
 
-- React-based user interface
-- Redux Toolkit for state management
-- Centralized Redux store
-- Notes management using Redux Slice
-- Async Thunks for API operations
-- Fetch all notes
-- Add new notes
-- Update existing notes
-- Delete notes
-- JWT-based authentication
-- Secure API requests using Authorization headers
-- Authentication token storage
-- Loading and error state handling
-- Backend and frontend data synchronization
-- Responsive notes management interface
+- Automated API testing using Jest
+- HTTP assertions using Supertest
+- Database mocking or separate test database
+- GET, POST, PUT, and DELETE endpoint testing
+- HTTP status code verification
+- API response validation
+- Error handling tests
+- Test coverage reports
+- Continuous Integration (CI) workflow preparation
 
 ### 🛠️ Technologies Used
 
-**Frontend:**
-- React.js
-- JavaScript
-- HTML5
-- CSS3
-
-**State Management:**
-- Redux Toolkit
-- React Redux
-- Redux Slice
-- createAsyncThunk
-
-**Backend:**
 - Node.js
 - Express.js
-- REST API
-- JWT Authentication
-
-**Database:**
 - MySQL
-- mysql2
+- Jest
+- Supertest
+- JavaScript
+- npm
+- GitHub Actions (CI)
 
-**API Integration:**
-- Fetch API or Axios
-- Authorization Headers
-- JSON
+### 📋 Testing Implementation Steps
 
-### 📋 Implementation Steps
+**Step 1: Configure Jest and Supertest**
 
-**Step 1: Set Up Redux Store with Notes Slice**
-
-Install the required dependencies:
+Install the required testing dependencies:
 
 ```bash
-npm install @reduxjs/toolkit react-redux
+npm install --save-dev jest supertest
 ```
 
-Create a Redux store to manage application state.
+Configure Jest in `package.json`:
 
-Create a notes slice to maintain:
-- Notes list
-- Loading status
-- Error messages
-- Selected note
+```json
+{
+  "scripts": {
+    "test": "jest --runInBand",
+    "test:coverage": "jest --coverage --runInBand"
+  }
+}
+```
 
-Example project structure:
+**Step 2: Mock Database Interactions or Use a Test Database**
+
+Configure a separate testing database to avoid modifying production data.
+
+Testing setup should include:
+
+- Separate test database configuration.
+- Database connection management.
+- Test data initialization.
+- Database cleanup after tests.
+- Mock database queries when required.
+
+**Step 3: Write Tests for All CRUD Endpoints**
+
+Create a test directory:
 
 ```text
-src/
-│
-├── app/
-│   └── store.js
-│
-├── features/
-│   └── notes/
-│       └── notesSlice.js
-│
-├── components/
-│   ├── NotesList.jsx
-│   ├── AddNote.jsx
-│   └── EditNote.jsx
-│
-├── App.jsx
-└── main.jsx
+tests/
+├── notes.test.js
+├── auth.test.js
+└── setup.js
 ```
 
-**Step 2: Create Async Thunks for Notes API Operations**
+Write integration tests for the following API endpoints:
 
-Use Redux Toolkit's `createAsyncThunk` to perform asynchronous API requests.
-
-Implement the following operations:
-
-- Fetch Notes – GET `/notes`
-- Add Note – POST `/notes`
-- Update Note – PUT `/notes/:id`
-- Delete Note – DELETE `/notes/:id`
-
-Handle the following states:
-- Pending – API request is in progress.
-- Fulfilled – API request completed successfully.
-- Rejected – API request failed.
-
-**Step 3: Design React Components for Notes Management**
-
-Create React components for:
-
-- Notes List – Display all available notes.
-- Add Note – Form to create a new note.
-- Edit Note – Update existing note details.
-- Delete Note – Remove a note.
-- Authentication – Handle user login and token access.
-
-Use React components and Redux selectors to display and manage notes.
-
-**Step 4: Handle Authentication Token Storage**
-
-After successful login, store the JWT token using an appropriate browser storage mechanism.
-
-Include the JWT token in API requests through the Authorization header.
-
-Example:
-
-```javascript
-const token = localStorage.getItem("token");
-
-const response = await fetch(
-  "http://localhost:3000/notes",
-  {
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json"
-    }
-  }
-);
-```
-
-**Security Note:** Never store sensitive information such as passwords in browser storage. Clear the authentication token during logout and handle expired tokens appropriately.
-
-**Step 5: Test the UI and Backend Synchronization**
-
-Verify that all frontend operations work correctly with the secured backend API.
-
-Testing checklist:
-
-- Login and obtain JWT token.
-- Fetch notes from the backend.
-- Add a new note.
-- Update an existing note.
-- Delete a note.
-- Verify Redux state updates after API operations.
-- Test API requests without authentication.
-- Handle loading and error states.
-- Verify that backend data and frontend state remain synchronized.
-
-### 🔗 API Integration
-
-| Operation | HTTP Method | Endpoint |
+| Method | Endpoint | Test Description |
 |---|---|---|
-| Fetch Notes | GET | `/notes` |
-| Add Note | POST | `/notes` |
-| Update Note | PUT | `/notes/:id` |
-| Delete Note | DELETE | `/notes/:id` |
+| GET | `/notes` | Retrieve all notes |
+| GET | `/notes/:id` | Retrieve a specific note |
+| POST | `/notes` | Create a new note |
+| PUT | `/notes/:id` | Update an existing note |
+| DELETE | `/notes/:id` | Delete a note |
 
-All Notes API requests require a valid JWT authentication token.
+Verify the following:
+- Correct HTTP status codes.
+- Expected JSON response.
+- Successful CRUD operations.
+- Invalid request handling.
+- Authentication requirements.
+- Database error handling.
 
-### 🧪 Testing Checklist
+**Step 4: Run Tests and Generate Coverage Report**
+
+Run the complete test suite:
+
+```bash
+npm test
+```
+
+Generate a test coverage report:
+
+```bash
+npm run test:coverage
+```
+
+Jest generates a coverage report showing:
+
+- Statement coverage
+- Branch coverage
+- Function coverage
+- Line coverage
+
+The coverage report helps identify untested parts of the application.
+
+**Step 5: Integrate Testing into CI Workflow**
+
+Prepare a Continuous Integration workflow using GitHub Actions.
+
+Create the following file:
+
+```text
+.github/workflows/test.yml
+```
+
+Example workflow:
+
+```yaml
+name: Notes API Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Run Tests
+        run: npm test
+```
+
+*Note: Configure the required test database or mocks and environment variables before running the CI workflow.*
+
+### 🧪 API Test Cases
 
 | Test Case | Expected Result |
 |---|---|
-| Fetch notes | Notes displayed in UI |
-| Add note | New note appears in list |
-| Update note | Updated details displayed |
-| Delete note | Note removed from list |
-| API request without token | 401 Unauthorized |
-| Invalid token | 401 Unauthorized |
-| API loading | Loading indicator displayed |
-| API error | Error message displayed |
+| GET all notes | 200 OK |
+| GET note by valid ID | 200 OK |
+| GET note with invalid ID | 404 Not Found |
+| POST valid note | 201 Created |
+| POST invalid note | 400 Bad Request |
+| PUT existing note | 200 OK |
+| PUT non-existing note | 404 Not Found |
+| DELETE existing note | 200 OK |
+| DELETE non-existing note | 404 Not Found |
+| Request without JWT | 401 Unauthorized |
+| Request with invalid JWT | 401 Unauthorized |
+
+### 📊 Test Coverage
+
+Test coverage is used to measure how much of the application code is executed during automated testing.
+
+The coverage report includes:
+
+- Statements
+- Branches
+- Functions
+- Lines
+
+Run the following command to generate the report:
+
+```bash
+npm run test:coverage
+```
+
+The generated coverage report is available in the `coverage/` directory.
 
 ### 🎯 Project Objectives
 
-- Understand React Redux architecture.
-- Implement centralized state management.
-- Learn Redux Toolkit and Redux Slice.
-- Use createAsyncThunk for asynchronous operations.
-- Integrate React with REST APIs.
-- Implement JWT-based API authentication.
-- Manage authentication tokens.
-- Synchronize frontend and backend data.
-- Handle API loading and error states.
-- Build a secure Notes Management interface.
+- Understand automated API testing.
+- Learn Jest testing framework.
+- Perform HTTP assertions using Supertest.
+- Test all CRUD operations.
+- Validate API responses and status codes.
+- Test error handling and authentication.
+- Understand database mocking and test databases.
+- Generate test coverage reports.
+- Learn Continuous Integration using GitHub Actions.
+- Improve application reliability and code quality.
 
-### 🚀 Integration Summary
+### 🚀 Testing Summary
 
-**Frontend:** React.js
+**Testing Framework:** Jest
 
-**State Management:** Redux Toolkit
-
-**Redux Middleware:** createAsyncThunk
+**HTTP Testing Library:** Supertest
 
 **Backend:** Node.js and Express.js
 
 **Database:** MySQL
 
-**Authentication:** JWT
+**Testing Type:** API Integration Testing
 
-**API Integration:** Fetch API / Axios
+**Coverage Tool:** Jest Coverage
 
-**API Operations:** GET, POST, PUT, DELETE
+**CI Platform:** GitHub Actions
 
-**Testing Tool:** Postman
+**Test Commands:**
+
+```bash
+npm test
+npm run test:coverage
+```
 
 ---
 
