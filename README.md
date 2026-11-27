@@ -1,131 +1,110 @@
-## 🧪 Automated Testing for Notes CRUD API
+## ⚙️ Continuous Integration (CI) Pipeline Using GitHub Actions
 
-The Notes CRUD API includes an automated testing approach using Jest and Supertest to verify API functionality, HTTP status codes, response data, and error handling.
+This project implements a Continuous Integration (CI) pipeline using GitHub Actions to automate code quality checks, API testing, and Docker image building.
 
-The test suite covers all CRUD endpoints to ensure the API works correctly and reliably.
+The pipeline runs automatically whenever code is pushed to the main branch or a pull request is created.
 
-### ✨ Testing Features
+### ✨ CI Pipeline Features
 
-- Automated API testing using Jest
-- HTTP assertions using Supertest
-- Database mocking or separate test database
-- GET, POST, PUT, and DELETE endpoint testing
-- HTTP status code verification
-- API response validation
-- Error handling tests
-- Test coverage reports
-- Continuous Integration (CI) workflow preparation
+- Automated code linting using ESLint
+- Automated test execution using Jest
+- API integration testing using Supertest
+- Automatic Docker image building
+- Build failure detection
+- Docker image artifact storage
+- GitHub Actions workflow automation
+- Continuous Integration validation
 
 ### 🛠️ Technologies Used
 
+- GitHub Actions
 - Node.js
-- Express.js
-- MySQL
+- ESLint
 - Jest
 - Supertest
-- JavaScript
-- npm
-- GitHub Actions (CI)
+- Docker
+- Git and GitHub
 
-### 📋 Testing Implementation Steps
+### 📋 CI Pipeline Implementation Steps
 
-**Step 1: Configure Jest and Supertest**
+**Step 1: Add ESLint for Code Linting**
 
-Install the required testing dependencies:
+Install ESLint:
 
 ```bash
-npm install --save-dev jest supertest
+npm install --save-dev eslint
 ```
 
-Configure Jest in `package.json`:
+Configure ESLint to check JavaScript code quality.
+
+Add the following script to `package.json`:
 
 ```json
 {
   "scripts": {
-    "test": "jest --runInBand",
-    "test:coverage": "jest --coverage --runInBand"
+    "lint": "eslint ."
   }
 }
 ```
 
-**Step 2: Mock Database Interactions or Use a Test Database**
+**Step 2: Add Jest Test Job**
 
-Configure a separate testing database to avoid modifying production data.
+Configure GitHub Actions to execute the automated test suite.
 
-Testing setup should include:
-
-- Separate test database configuration.
-- Database connection management.
-- Test data initialization.
-- Database cleanup after tests.
-- Mock database queries when required.
-
-**Step 3: Write Tests for All CRUD Endpoints**
-
-Create a test directory:
-
-```text
-tests/
-├── notes.test.js
-├── auth.test.js
-└── setup.js
-```
-
-Write integration tests for the following API endpoints:
-
-| Method | Endpoint | Test Description |
-|---|---|---|
-| GET | `/notes` | Retrieve all notes |
-| GET | `/notes/:id` | Retrieve a specific note |
-| POST | `/notes` | Create a new note |
-| PUT | `/notes/:id` | Update an existing note |
-| DELETE | `/notes/:id` | Delete a note |
-
-Verify the following:
-- Correct HTTP status codes.
-- Expected JSON response.
-- Successful CRUD operations.
-- Invalid request handling.
-- Authentication requirements.
-- Database error handling.
-
-**Step 4: Run Tests and Generate Coverage Report**
-
-Run the complete test suite:
+The workflow should:
+- Install project dependencies.
+- Run Jest tests.
+- Execute API integration tests.
+- Stop the pipeline if any test fails.
 
 ```bash
 npm test
 ```
 
-Generate a test coverage report:
+**Step 3: Add Docker Image Build Job**
+
+Configure a Docker build step after successful linting and testing.
 
 ```bash
-npm run test:coverage
+docker build -t notes-api .
 ```
 
-Jest generates a coverage report showing:
+The Docker image should only be built if the previous jobs complete successfully.
 
-- Statement coverage
-- Branch coverage
-- Function coverage
-- Line coverage
+**Step 4: Store Docker Image as an Artifact or Push to Container Registry**
 
-The coverage report helps identify untested parts of the application.
+The generated Docker image can be:
 
-**Step 5: Integrate Testing into CI Workflow**
+- Saved as a GitHub Actions artifact.
+- Pushed to Docker Hub.
+- Published to GitHub Container Registry (GHCR).
 
-Prepare a Continuous Integration workflow using GitHub Actions.
+**Step 5: Validate the Workflow**
+
+- Push a new commit to the GitHub repository.
+- Open the Actions tab.
+- Check the workflow execution.
+- Verify ESLint results.
+- Verify Jest test results.
+- Verify Docker image build status.
+- Fix any errors and push another commit if required.
+
+### 📂 GitHub Actions Workflow Structure
 
 Create the following file:
 
 ```text
-.github/workflows/test.yml
+.github/
+└── workflows/
+    └── ci.yml
 ```
 
-Example workflow:
+### 📝 Example CI Workflow
+
+Create `.github/workflows/ci.yml`:
 
 ```yaml
-name: Notes API Tests
+name: Notes API CI Pipeline
 
 on:
   push:
@@ -134,7 +113,8 @@ on:
     branches: [main]
 
 jobs:
-  test:
+  lint:
+    name: Code Linting
     runs-on: ubuntu-latest
 
     steps:
@@ -147,84 +127,104 @@ jobs:
           node-version: 22
 
       - name: Install Dependencies
-        run: npm install
+        run: npm ci
 
-      - name: Run Tests
+      - name: Run ESLint
+        run: npm run lint
+
+  test:
+    name: Run Automated Tests
+    runs-on: ubuntu-latest
+    needs: lint
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Run Jest Tests
         run: npm test
+
+  docker:
+    name: Build Docker Image
+    runs-on: ubuntu-latest
+    needs: test
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Build Docker Image
+        run: docker build -t notes-api .
+
+      - name: Save Docker Image
+        run: docker save notes-api -o notes-api.tar
+
+      - name: Upload Docker Image Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: notes-api-image
+          path: notes-api.tar
 ```
 
-*Note: Configure the required test database or mocks and environment variables before running the CI workflow.*
+### 🔄 CI Pipeline Workflow
 
-### 🧪 API Test Cases
+The pipeline follows this sequence:
 
-| Test Case | Expected Result |
+1. Code is pushed to GitHub.
+2. GitHub Actions starts the workflow.
+3. ESLint checks the code quality.
+4. Jest executes automated tests.
+5. Docker builds the application image.
+6. The Docker image is stored as a workflow artifact.
+7. The workflow reports success or failure.
+
+### 🧪 Pipeline Validation Checklist
+
+| Task | Expected Result |
 |---|---|
-| GET all notes | 200 OK |
-| GET note by valid ID | 200 OK |
-| GET note with invalid ID | 404 Not Found |
-| POST valid note | 201 Created |
-| POST invalid note | 400 Bad Request |
-| PUT existing note | 200 OK |
-| PUT non-existing note | 404 Not Found |
-| DELETE existing note | 200 OK |
-| DELETE non-existing note | 404 Not Found |
-| Request without JWT | 401 Unauthorized |
-| Request with invalid JWT | 401 Unauthorized |
-
-### 📊 Test Coverage
-
-Test coverage is used to measure how much of the application code is executed during automated testing.
-
-The coverage report includes:
-
-- Statements
-- Branches
-- Functions
-- Lines
-
-Run the following command to generate the report:
-
-```bash
-npm run test:coverage
-```
-
-The generated coverage report is available in the `coverage/` directory.
+| GitHub commit push | Workflow starts |
+| ESLint execution | No linting errors |
+| Jest execution | All tests pass |
+| Docker image build | Image builds successfully |
+| Artifact upload | Docker image artifact available |
+| Workflow validation | All jobs successful |
 
 ### 🎯 Project Objectives
 
-- Understand automated API testing.
-- Learn Jest testing framework.
-- Perform HTTP assertions using Supertest.
-- Test all CRUD operations.
-- Validate API responses and status codes.
-- Test error handling and authentication.
-- Understand database mocking and test databases.
-- Generate test coverage reports.
-- Learn Continuous Integration using GitHub Actions.
-- Improve application reliability and code quality.
+- Understand Continuous Integration.
+- Automate code quality checks.
+- Learn ESLint configuration.
+- Automate API testing using Jest and Supertest.
+- Build Docker images automatically.
+- Store Docker images as workflow artifacts.
+- Understand GitHub Actions workflows.
+- Improve software development and deployment processes.
 
-### 🚀 Testing Summary
-
-**Testing Framework:** Jest
-
-**HTTP Testing Library:** Supertest
-
-**Backend:** Node.js and Express.js
-
-**Database:** MySQL
-
-**Testing Type:** API Integration Testing
-
-**Coverage Tool:** Jest Coverage
+### 🚀 CI Pipeline Summary
 
 **CI Platform:** GitHub Actions
 
-**Test Commands:**
+**Code Linting:** ESLint
 
-```bash
-npm test
-npm run test:coverage
-```
+**Testing Framework:** Jest
+
+**API Testing:** Supertest
+
+**Containerization:** Docker
+
+**Artifact Storage:** GitHub Actions Artifacts
+
+**Workflow Trigger:** Push and Pull Request
+
+**Pipeline Stages:** Lint → Test → Docker Build → Artifact Upload
 
 ---
 
