@@ -1,230 +1,197 @@
-## ⚙️ Continuous Integration (CI) Pipeline Using GitHub Actions
+## 🔄 Real-Time Collaborative Notes Using Socket.io
 
-This project implements a Continuous Integration (CI) pipeline using GitHub Actions to automate code quality checks, API testing, and Docker image building.
+The Notes Management Application supports real-time collaboration using Socket.io. Multiple users can access the notes application simultaneously and receive live updates whenever a note is created, updated, or deleted.
 
-The pipeline runs automatically whenever code is pushed to the main branch or a pull request is created.
+Socket.io enables real-time communication between the Express.js backend and React frontend without requiring manual page refreshes.
 
-### ✨ CI Pipeline Features
+### ✨ Features
 
-- Automated code linting using ESLint
-- Automated test execution using Jest
-- API integration testing using Supertest
-- Automatic Docker image building
-- Build failure detection
-- Docker image artifact storage
-- GitHub Actions workflow automation
-- Continuous Integration validation
+- Real-time communication using Socket.io
+- Socket.io server integrated with Express.js
+- Live note creation notifications
+- Live note update notifications
+- Live note deletion notifications
+- React Socket.io client integration
+- Redux store synchronization
+- Automatic UI updates across connected clients
+- Multi-browser collaboration support
 
 ### 🛠️ Technologies Used
 
-- GitHub Actions
+- React.js
+- Redux Toolkit
 - Node.js
-- ESLint
-- Jest
-- Supertest
-- Docker
-- Git and GitHub
+- Express.js
+- Socket.io
+- Socket.io Client
+- MySQL
+- JWT Authentication
+- JavaScript
 
-### 📋 CI Pipeline Implementation Steps
+### 📋 Implementation Steps
 
-**Step 1: Add ESLint for Code Linting**
+**Step 1: Set Up Socket.io Server Alongside Express**
 
-Install ESLint:
-
-```bash
-npm install --save-dev eslint
-```
-
-Configure ESLint to check JavaScript code quality.
-
-Add the following script to `package.json`:
-
-```json
-{
-  "scripts": {
-    "lint": "eslint ."
-  }
-}
-```
-
-**Step 2: Add Jest Test Job**
-
-Configure GitHub Actions to execute the automated test suite.
-
-The workflow should:
-- Install project dependencies.
-- Run Jest tests.
-- Execute API integration tests.
-- Stop the pipeline if any test fails.
+Install Socket.io:
 
 ```bash
-npm test
+npm install socket.io
 ```
 
-**Step 3: Add Docker Image Build Job**
-
-Configure a Docker build step after successful linting and testing.
+Install Socket.io Client in the frontend:
 
 ```bash
-docker build -t notes-api .
+npm install socket.io-client
 ```
 
-The Docker image should only be built if the previous jobs complete successfully.
+Integrate Socket.io with the Express application using an HTTP server.
 
-**Step 4: Store Docker Image as an Artifact or Push to Container Registry**
+**Step 2: Emit Events on Note Create, Update, and Delete**
 
-The generated Docker image can be:
+Implement Socket.io events for the following operations:
 
-- Saved as a GitHub Actions artifact.
-- Pushed to Docker Hub.
-- Published to GitHub Container Registry (GHCR).
+| Event | Description |
+|---|---|
+| `note:created` | Notify clients when a new note is created |
+| `note:updated` | Notify clients when an existing note is updated |
+| `note:deleted` | Notify clients when a note is deleted |
 
-**Step 5: Validate the Workflow**
+Emit events after successful database operations so clients receive updated information.
 
-- Push a new commit to the GitHub repository.
-- Open the Actions tab.
-- Check the workflow execution.
-- Verify ESLint results.
-- Verify Jest test results.
-- Verify Docker image build status.
-- Fix any errors and push another commit if required.
+**Step 3: Connect React to Socket.io**
 
-### 📂 GitHub Actions Workflow Structure
+Create a Socket.io client connection in the React application.
 
-Create the following file:
+Listen for real-time events:
+
+- Listen for newly created notes.
+- Listen for updated notes.
+- Listen for deleted notes.
+- Update the interface without refreshing the page.
+
+**Step 4: Update Redux Store in Real Time**
+
+Integrate Socket.io events with Redux Toolkit.
+
+Update the Redux store whenever a real-time event is received.
+
+| Event | Redux Action |
+|---|---|
+| `note:created` | Add the new note |
+| `note:updated` | Update the existing note |
+| `note:deleted` | Remove the deleted note |
+
+Use Redux reducers to synchronize the frontend state with backend changes.
+
+**Step 5: Test Collaboration Using Multiple Browser Windows**
+
+Open the application in multiple browser windows or sessions.
+
+Test the following scenarios:
+
+- Create a note in Browser 1 and verify it appears in Browser 2.
+- Update a note in Browser 1 and verify the changes in Browser 2.
+- Delete a note in Browser 1 and verify it disappears in Browser 2.
+- Verify that Redux state updates automatically.
+- Confirm that users receive updates without refreshing the page.
+
+### 🔗 Real-Time Event Summary
+
+| Operation | Socket.io Event | Expected Result |
+|---|---|---|
+| Create Note | `note:created` | New note appears across clients |
+| Update Note | `note:updated` | Updated note appears across clients |
+| Delete Note | `note:deleted` | Deleted note disappears across clients |
+
+### 📂 Updated Project Structure
 
 ```text
-.github/
-└── workflows/
-    └── ci.yml
+notes-api/
+│
+├── middleware/
+│   └── authMiddleware.js
+│
+├── routes/
+│   ├── authRoutes.js
+│   └── notesRoutes.js
+│
+├── sockets/
+│   └── socketHandler.js
+│
+├── models/
+│   └── userModel.js
+│
+├── db.js
+├── server.js
+├── .env
+├── package.json
+└── README.md
+
+frontend/
+│
+├── src/
+│   ├── app/
+│   │   └── store.js
+│   │
+│   ├── features/
+│   │   └── notes/
+│   │       └── notesSlice.js
+│   │
+│   ├── components/
+│   ├── App.jsx
+│   └── main.jsx
 ```
 
-### 📝 Example CI Workflow
+### 🔐 Security Considerations
 
-Create `.github/workflows/ci.yml`:
+- Authenticate Socket.io connections using JWT.
+- Validate users before allowing note modifications.
+- Ensure users can only access authorized notes.
+- Validate incoming socket events.
+- Avoid broadcasting sensitive user information.
+- Remove socket event listeners when React components unmount.
 
-```yaml
-name: Notes API CI Pipeline
+### 🧪 Collaboration Testing Checklist
 
-on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
-
-jobs:
-  lint:
-    name: Code Linting
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-
-      - name: Install Dependencies
-        run: npm ci
-
-      - name: Run ESLint
-        run: npm run lint
-
-  test:
-    name: Run Automated Tests
-    runs-on: ubuntu-latest
-    needs: lint
-
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-
-      - name: Install Dependencies
-        run: npm ci
-
-      - name: Run Jest Tests
-        run: npm test
-
-  docker:
-    name: Build Docker Image
-    runs-on: ubuntu-latest
-    needs: test
-
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: Build Docker Image
-        run: docker build -t notes-api .
-
-      - name: Save Docker Image
-        run: docker save notes-api -o notes-api.tar
-
-      - name: Upload Docker Image Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: notes-api-image
-          path: notes-api.tar
-```
-
-### 🔄 CI Pipeline Workflow
-
-The pipeline follows this sequence:
-
-1. Code is pushed to GitHub.
-2. GitHub Actions starts the workflow.
-3. ESLint checks the code quality.
-4. Jest executes automated tests.
-5. Docker builds the application image.
-6. The Docker image is stored as a workflow artifact.
-7. The workflow reports success or failure.
-
-### 🧪 Pipeline Validation Checklist
-
-| Task | Expected Result |
+| Test Case | Expected Result |
 |---|---|
-| GitHub commit push | Workflow starts |
-| ESLint execution | No linting errors |
-| Jest execution | All tests pass |
-| Docker image build | Image builds successfully |
-| Artifact upload | Docker image artifact available |
-| Workflow validation | All jobs successful |
+| Connect multiple browser clients | All clients connect successfully |
+| Create a note | All authorized clients receive update |
+| Update a note | All authorized clients receive changes |
+| Delete a note | All authorized clients remove the note |
+| Disconnect a client | Other clients continue working |
+| Reconnect a client | Notes synchronize with backend |
 
 ### 🎯 Project Objectives
 
-- Understand Continuous Integration.
-- Automate code quality checks.
-- Learn ESLint configuration.
-- Automate API testing using Jest and Supertest.
-- Build Docker images automatically.
-- Store Docker images as workflow artifacts.
-- Understand GitHub Actions workflows.
-- Improve software development and deployment processes.
+- Understand real-time web communication.
+- Learn Socket.io integration with Express.js.
+- Implement event-based communication.
+- Connect React applications using Socket.io Client.
+- Integrate real-time events with Redux Toolkit.
+- Synchronize frontend state across multiple clients.
+- Build collaborative applications.
+- Understand real-time application architecture.
 
-### 🚀 CI Pipeline Summary
+### 🚀 Real-Time Collaboration Summary
 
-**CI Platform:** GitHub Actions
+**Backend:** Node.js and Express.js
 
-**Code Linting:** ESLint
+**Frontend:** React.js
 
-**Testing Framework:** Jest
+**Real-Time Communication:** Socket.io
 
-**API Testing:** Supertest
+**Client Library:** Socket.io Client
 
-**Containerization:** Docker
+**State Management:** Redux Toolkit
 
-**Artifact Storage:** GitHub Actions Artifacts
+**Database:** MySQL
 
-**Workflow Trigger:** Push and Pull Request
+**Authentication:** JWT
 
-**Pipeline Stages:** Lint → Test → Docker Build → Artifact Upload
+**Supported Events:** Create, Update, Delete
+
+**Testing:** Multiple Browser Windows
 
 ---
 
